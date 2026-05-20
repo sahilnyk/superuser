@@ -14,6 +14,7 @@ import interMediumWoff2 from "@fontsource/inter/files/inter-latin-500-normal.wof
 import robotoMonoRegularWoff2 from "@fontsource/roboto-mono/files/roboto-mono-latin-400-normal.woff2?url";
 import { ClientRouter } from "astro:transitions";
 import Navigation from "../shared/Navigation.astro";
+import Footer from "../shared/Footer.astro";
 
 interface Props {
   title: string;
@@ -53,7 +54,7 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image} />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/sahilnyk.png" />
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />
     <script is:inline>
@@ -83,6 +84,7 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
         <Navigation />
       </div>
       <main><slot /></main>
+      <Footer />
     </main>
     <div class="bottom-glow" transition:persist></div>
   </body>
