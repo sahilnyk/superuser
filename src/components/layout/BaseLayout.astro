@@ -31,8 +31,17 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="keywords" content="Sahil Nayak, sahilnyk, Full Stack Engineer, Software Developer, Python Developer, FastAPI, Terraform, AWS, Machine Learning, DevOps, Portfolio" />
+    <meta name="author" content="Sahil Nayak" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
 
     <!-- Preload critical fonts -->
     <link rel="preload" href={interLightWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
@@ -40,19 +49,29 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
     <link rel="preload" href={interMediumWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="preload" href={robotoMonoRegularWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
 
-    <link rel="canonical" href={canonicalURL} />
 
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url} />
+    <meta property="og:site_name" content="Sahil Nayak - Full Stack Engineer" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={new URL(image, Astro.site).toString()} />
+    <meta property="og:locale" content="en_US" />
 
+    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:site" content="@byteekai" />
+    <meta property="twitter:creator" content="@byteekai" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={image} />
+    <meta property="twitter:image" content={new URL(image, Astro.site).toString()} />
+
+    <!-- Additional SEO -->
+    <meta name="language" content="English" />
+    <meta name="geo.region" content="IN" />
+    <meta name="geo.placename" content="India" />
 
     <link rel="icon" type="image/png" href="/sahilnyk.png" />
     <meta name="generator" content={Astro.generator} />
