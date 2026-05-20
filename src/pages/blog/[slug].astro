@@ -55,15 +55,18 @@ const formatDate = (date: Date) => {
 
   h1 {
     margin-bottom: 0.5rem;
+    font-size: var(--text-lg);
   }
 
   time {
     color: var(--text-muted);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    opacity: 0.5;
   }
 
   .content {
     line-height: 1.7;
+    font-size: var(--text-sm);
   }
 
   .content :global(h2) {
@@ -126,7 +129,38 @@ const formatDate = (date: Date) => {
 
   @media (max-width: 640px) {
     main {
-      padding: 1rem;
+      padding: 1rem 1.5rem;
+    }
+
+    .post {
+      padding: 0 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      line-height: 1.3;
+    }
+
+    .content {
+      font-size: var(--text-sm);
+      padding: 0 0.25rem;
+    }
+
+    .content :global(h2) {
+      font-size: 1.25rem;
+    }
+
+    .content :global(h3) {
+      font-size: 1.1rem;
+    }
+
+    .content :global(p) {
+      font-size: var(--text-sm);
+    }
+
+    .content :global(pre) {
+      margin-left: -0.25rem;
+      margin-right: -0.25rem;
     }
   }
 </style>
