@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import BaseHero from "../components/shared/BaseHero.astro";
+import Container from "../components/ui/Container.astro";
+import PricingCard from "../components/ui/PricingCard.astro";
+
+const hourlyFeatures = [
+  "Ongoing development support",
+  "Code reviews & consulting",
+  "Bug fixes & maintenance",
+  "Minimum 10 hours/week"
+];
+
+const projectFeatures = [
+  "Full project development",
+  "Architecture & design",
+  "Testing & deployment",
+  "Post-launch support included"
+];
+---
+
+<BaseLayout title="Hire Me" description="Schedule a consultation call with me">
+  <Container>
+    <BaseHero
+      title="Hire Me"
+      description="Let's discuss your project. Schedule a consultation call to explore how we can work together."
+    />
+
+    <section class="hire-content">
+      <div class="intro-text">
+        <p>
+          I'm available for freelance projects, consulting, and full-time opportunities.
+          Whether you need help with a specific technical challenge or looking for a long-term collaboration,
+          I'd love to hear from you.
+        </p>
+      </div>
+
+      <div class="pricing-section">
+        <h2>Pricing</h2>
+        <div class="pricing-cards">
+          <PricingCard
+            title="Hourly Rate"
+            price="$80"
+            period="hour"
+            description="Flexible engagement"
+            features={hourlyFeatures}
+            recommended={true}
+            icon="hourly"
+            calLink="https://cal.com/sahil-nayak-m4ulup/30min"
+          />
+          <PricingCard
+            title="Project-Based"
+            price="Custom"
+            description="Fixed scope projects"
+            features={projectFeatures}
+            icon="project"
+            calLink="https://cal.com/sahil-nayak-m4ulup/30min"
+          />
+        </div>
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .hire-content {
+    padding: 2rem 0;
+  }
+
+  .intro-text {
+    margin-bottom: 3rem;
+    max-width: 640px;
+  }
+
+  .intro-text p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+
+  .pricing-section {
+    margin: 4rem 0;
+  }
+
+  .pricing-section h2 {
+    margin-bottom: 3rem;
+    font-size: 1.5rem;
+    opacity: 0.7;
+  }
+
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 4rem;
+    max-width: 900px;
+  }
+
+  @media (max-width: 1024px) {
+    .pricing-cards {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>
