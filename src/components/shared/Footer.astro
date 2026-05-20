@@ -1,0 +1,67 @@
+---
+---
+
+<footer class="footer">
+  <div class="big-text">
+    sahilnyk
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    width: 100%;
+    padding: 6rem 1rem 3rem;
+    margin-top: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .big-text {
+    font-size: clamp(50px, 7vw, 150px);
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.15);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    pointer-events: none;
+    user-select: none;
+    text-transform: lowercase;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    .big-text {
+      font-size: clamp(45px, 7vw, 120px);
+      color: rgba(255, 255, 255, 0.18);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      padding: 4rem 0.5rem 2rem;
+    }
+
+    .big-text {
+      font-size: clamp(90px, 18vw, 180px);
+      letter-spacing: -0.02em;
+      color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer {
+      padding: 3rem 0.25rem 2rem;
+    }
+
+    .big-text {
+      font-size: clamp(75px, 20vw, 150px);
+      letter-spacing: -0.015em;
+      color: rgba(255, 255, 255, 0.22);
+    }
+  }
+</style>
