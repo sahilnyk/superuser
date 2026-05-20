@@ -1,8 +1,8 @@
 {
   "home": {
-    "name": "ByteKai",
+    "name": "sahilnyk",
     "title": "Software Engineer & Curious Tinkerer",
-    "introduction": "I’m constantly learning and evolving. I love diving into new ideas and finding creative ways to solve problems.",
+    "introduction": "I’m constantly learning and evolving. I love diving into new ideas and finding creative ways to solve problems. When I’m not coding, you’ll find me strategizing on @chess.com or grinding problems on @hackerrank.",
     "sections": {
       "blog": {
         "title": "Writing",
@@ -20,7 +20,7 @@
     "socialLinks": [
       {
         "platform": "GitHub",
-        "url": "https://github.com/bytekai"
+        "url": "https://github.com/sahilnyk"
       },
       {
         "platform": "Twitter",
