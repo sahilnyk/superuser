@@ -29,7 +29,7 @@ const projectFeatures = [
     <section class="hire-content">
       <div class="intro-text">
         <p>
-          I'm available for freelance projects, consulting, and full-time opportunities.
+          I'm available for <span class="highlight">freelance projects</span>, <span class="highlight">consulting</span>, and <span class="highlight">full-time opportunities</span>.
           Whether you need help with a specific technical challenge or looking for a long-term collaboration,
           I'd love to hear from you.
         </p>
@@ -40,11 +40,10 @@ const projectFeatures = [
         <div class="pricing-cards">
           <PricingCard
             title="Hourly Rate"
-            price="$80"
+            price="$8"
             period="hour"
             description="Flexible engagement"
             features={hourlyFeatures}
-            recommended={true}
             icon="hourly"
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
           />
@@ -76,6 +75,34 @@ const projectFeatures = [
     margin-bottom: 1rem;
     line-height: 1.6;
     opacity: 0.9;
+  }
+
+  .highlight {
+    color: rgba(96, 165, 250, 0.9);
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(96, 165, 250, 0.4),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .highlight:hover::after {
+    opacity: 1;
   }
 
   .pricing-section {

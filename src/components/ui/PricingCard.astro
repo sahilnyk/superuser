@@ -133,14 +133,18 @@ const { title, price, period, description, features, recommended = false, icon =
   }
 
   .badge {
-    font-size: 0.625rem;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
     border: 1px solid var(--border-color);
     background: transparent;
-    opacity: 0.8;
+    opacity: 0.7;
+    z-index: 10;
   }
 
   .price-wrapper {
@@ -159,6 +163,28 @@ const { title, price, period, description, features, recommended = false, icon =
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.02em;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.9) 25%,
+      rgba(255, 255, 255, 0.7) 50%,
+      rgba(255, 255, 255, 0.9) 75%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0% {
+      background-position: 200% center;
+    }
+    100% {
+      background-position: -200% center;
+    }
   }
 
   .price .period {
