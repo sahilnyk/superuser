@@ -15,15 +15,6 @@ I check the logs. Same order ID, processed twice, 40 seconds apart. What the hel
 
 Turns out I didn't understand visibility timeout. Here's what happened:
 
-```mermaid
-graph TD
-    A[Worker 1 grabs message] --> B[Message hidden for 30s]
-    B --> C[30s timeout expires]
-    C --> D[Worker 2 grabs SAME message]
-    D --> E[Both workers process it]
-    E --> F[Double charge!]
-```
-
 ```python
 # My broken code
 def process_orders():
@@ -88,15 +79,6 @@ Same error, over and over. Someone sent a malformed message. My code would:
 
 One bad message blocked 50,000 legitimate orders.
 
-```mermaid
-graph LR
-    A[Bad message] --> B[Worker grabs it]
-    B --> C[JSON parse fails]
-    C --> D[Message returns to queue]
-    D --> B
-    style A fill:#f66
-```
-
 ```python
 # My broken code (no error handling)
 def process_orders():
@@ -108,15 +90,6 @@ def process_orders():
 ```
 
 **The fix: Dead Letter Queue**
-
-```mermaid
-graph LR
-    A[Message] --> B[Try 1: Fail]
-    B --> C[Try 2: Fail]
-    C --> D[Try 3: Fail]
-    D --> E[Move to DLQ]
-    E --> F[Main queue keeps working]
-```
 
 ```python
 # Step 1: Create a "failed messages" queue
