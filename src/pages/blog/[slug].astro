@@ -165,12 +165,27 @@ const formatDate = (date: Date) => {
       margin-right: -0.25rem;
     }
   }
+
+  .content :global(.mermaid) {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+  }
 </style>
 
-<script>
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'dark'
-  });
+<script is:inline>
+  // Load Mermaid
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.textContent = `
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: {
+        curve: 'basis'
+      }
+    });
+  `;
+  document.head.appendChild(script);
 </script>
