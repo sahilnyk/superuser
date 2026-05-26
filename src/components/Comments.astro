@@ -14,7 +14,7 @@
     data-reactions-enabled="1"
     data-emit-metadata="0"
     data-input-position="bottom"
-    data-theme="preferred_color_scheme"
+    data-theme="dark"
     data-lang="en"
     crossorigin="anonymous"
     async>
@@ -23,15 +23,20 @@
 
 <style>
   .comments-section {
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+  }
+
+  .comments-section :global(.giscus) {
+    max-width: 100%;
+  }
+
+  .comments-section :global(.giscus-frame) {
+    margin: 0;
   }
 
   @media (max-width: 640px) {
     .comments-section {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
+      margin-top: 2rem;
     }
   }
 </style>
