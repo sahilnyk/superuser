@@ -1,96 +1,136 @@
 ---
-title: "Why Serving LLMs Is So Damn Expensive"
-description: "KV caches eat your GPU memory, batching is harder than it looks, and quantization might be your only hope."
+title: "Why Running AI Models Is So Expensive"
+description: "Simple explanation of why ChatGPT-like models cost so much to run and how companies make them faster."
 publishedAt: 2025-05-20
 draft: false
 ---
 
-Running an LLM in production is expensive in ways that surprised me. A single A100 GPU costs $3-4/hour and might serve 20-50 concurrent users. Understanding why helps you optimize the right things.
+Running a large AI model like GPT-4 or Llama costs thousands of dollars per hour. A single GPU might only serve 20-50 people at once. Here's why it's so expensive and what people do about it.
 
-## Prefill vs Decode: Two Different Bottlenecks
+## Two Steps: Reading and Writing
 
-LLM inference has two phases that behave completely differently.
+When an AI generates text, it does two things:
 
-**Prefill** is when you feed in the prompt. All tokens get processed in parallel through the transformer. This is compute-bound - your GPU is actually busy doing matrix math.
+**Step 1: Read your prompt (fast)**
 
-**Decode** is generating tokens one at a time. Each token requires loading the entire model from memory, but only produces one single token. Your GPU spends most of its time waiting on memory bandwidth, not computing.
+You type "Write me a story about a robot." The AI reads all those words at once, in parallel. This is fast - maybe 200ms.
 
-This is why a 1000-token prompt might process in 200ms, but generating 100 output tokens takes 2-3 seconds. Decode is the bottleneck.
+**Step 2: Generate the response (slow)**
 
-## The KV Cache: Trading Memory for Speed
+The AI writes one word at a time. "Once"... "upon"... "a"... "time"...
 
-Here's the thing about transformers - each new token needs to "attend to" all previous tokens in the sequence. Without caching, you'd recompute attention for the whole sequence every time you generate a token. That's insane.
+Each word requires loading the entire model from memory. And the model is HUGE - like 140GB. So each word takes time.
 
-The KV cache stores the key and value matrices from all previous tokens. So when generating token N, you just look up the cached K/V from tokens 1 through N-1, and only compute fresh values for token N.
+This is why you see responses appear word-by-word. The AI literally can't do it faster - it's limited by how fast it can read from memory.
 
-```
-Without cache:
-Token 1: process prompt (1000 tokens)
-Token 2: process prompt + token 1 (1001 tokens)  
-Token 3: process prompt + token 1-2 (1002 tokens)
-...this is O(n²) and completely impractical
+## The Memory Problem
 
-With KV cache:
-Token 1: process prompt → cache K,V for all 1000 tokens
-Token 2: load cached K,V → compute only for new token
-Token 3: load cached K,V → compute only for new token
-...now it's O(n)
-```
+Think of it like this: you're writing an essay. Every time you write a new word, you have to re-read the entire encyclopedia. That's what the AI does.
 
-The catch: KV cache is huge. For a 70B model with 32K context window, you can easily need 10-20GB of cache per request. This is why GPU memory limits how many users you can serve concurrently, not compute power.
+The bigger the model, the more it has to read each time. A 70 billion parameter model needs to read 140GB from memory for every single word it generates.
 
-## Batching Sounds Simple, Isn't
+**Why it matters:** Memory speed is the bottleneck, not thinking speed. Your expensive GPU is mostly just waiting.
 
-My first thought: just batch requests together, process them in parallel. Done.
+## The KV Cache: Remember What You Read
 
-Problem: requests finish at different times. User A wants 50 tokens, User B wants 300. Do you make User A wait for User B? That sucks. Do you return A early and waste the batch slot? That sucks too.
+Here's the clever trick. Instead of re-reading everything about previous words, the AI saves notes about them (called KV cache).
 
-Modern inference servers (vLLM, TGI) use "continuous batching" - requests join and leave the batch dynamically. As soon as one finishes, a new one takes its slot. The batch is always full and always making progress.
+**Without cache:**
+- Word 1: Read entire model
+- Word 2: Read entire model again + remember word 1
+- Word 3: Read entire model again + remember words 1-2
+- (This is insane)
 
-This alone can 2-3x your throughput compared to naive static batching.
+**With cache:**
+- Word 1: Read model, save notes about word 1
+- Word 2: Read model, look up notes about word 1
+- Word 3: Read model, look up notes about words 1-2
+- (Much better)
 
-## PagedAttention: Borrowing from the OS
+**The catch:** Those notes take up memory. A lot. For a long conversation with a big model, the cache can use 10-20GB per person.
 
-vLLM's key trick is treating KV cache like virtual memory. Instead of pre-allocating max context length for each request (wasting tons of memory), they allocate cache in fixed-size blocks and use a page table to track them.
+That's why you can only serve 20-50 people on one GPU - you run out of memory for the cache.
 
-When a sequence finishes, its blocks get freed immediately. No fragmentation, no wasted pre-allocation.
+## Batching: Serve Multiple People at Once
 
-Real impact: I've seen vLLM serve 3-4x more concurrent requests than naive implementations on the same GPU.
+Instead of generating text for one person at a time, process multiple people in parallel.
 
-## Quantization: Your Escape Hatch
+**Without batching:**
+- Person A: generate word (40ms)
+- Person B: generate word (40ms)
+- Person C: generate word (40ms)
+- Total: 120ms for 3 words across 3 people
 
-A 70B parameter model in fp16 needs 140GB of GPU memory. Most consumer/prosumer GPUs have 24-48GB. You literally can't load the model.
+**With batching:**
+- All at once: generate 3 words in parallel (40ms)
+- Total: 40ms for 3 words across 3 people
 
-Quantization reduces precision:
+This is how ChatGPT handles thousands of users - it groups requests together.
 
-**int8 (8-bit):** Half the memory, quality loss is usually imperceptible. This is the sweet spot for production.
+## Making Models Smaller (Quantization)
 
-**int4 (4-bit):** Quarter the memory, quality starts degrading noticeably on complex reasoning tasks. But for most chatbot stuff, it's fine.
+A 70 billion parameter model normally takes 140GB of memory. Too big for most GPUs.
 
-**GGUF Q4_K_M:** Even more aggressive quantization for running on CPU/Mac. Quality takes a real hit but better than nothing.
+Solution: use lower precision numbers. Like storing "3.14159" as just "3.14".
 
-I quantize everything to int8 by default now. The quality difference is negligible and it lets me fit 2x the batch size or run bigger models.
+**Options:**
+- **Full precision (fp16):** 140GB, best quality
+- **8-bit (int8):** 70GB, almost same quality (this is the sweet spot)
+- **4-bit (int4):** 35GB, quality drops but still usable
 
-## Speculative Decoding: The Clever Trick
+Most companies use 8-bit. You cut memory in half with barely any quality loss. This means you can:
+- Run bigger models on smaller GPUs
+- Serve more users at once
+- Save money
 
-This one blew my mind when I first learned it. Use a small 7B model to quickly generate candidate tokens, then verify them with your big 70B model in one parallel pass (like prefill).
+## Speculative Decoding: Guess Ahead
 
-```
-Draft model (7B): generates 5 candidate tokens (~10ms)
-Target model (70B): verifies all 5 in one shot (~50ms)
-If 4 out of 5 correct: you got 4 tokens for the cost of one decode step
-```
+This one's clever. Use a small, fast model to guess what words come next. Then check those guesses with the big model all at once.
 
-When the draft model's guesses are good (which they often are for common patterns), you effectively generate tokens 2-3x faster. And the verification guarantees mathematically identical output to just using the big model - no quality loss.
+**How it works:**
 
-## What I Actually Do
+1. Small model guesses: "Once upon a time there"
+2. Big model checks all 5 words in one shot (fast, like reading a prompt)
+3. If 4 out of 5 are right, you just generated 4 words in the time it normally takes for 1
 
-When deploying an LLM:
+When it works well, you can generate text 2-3x faster with zero quality loss (the big model still verifies everything).
 
-1. **Use vLLM or TGI** - don't write your own serving code, continuous batching and PagedAttention are too important
-2. **Quantize to int8** - barely any quality hit, halves your memory requirements  
-3. **Profile first** - check if you're compute-bound or memory-bound before optimizing
-4. **Optimize for throughput, not latency** - serving 50 users at 2s per response is better than 10 users at 1s each
-5. **Consider longer context wisely** - KV cache scales linearly with context length, it adds up fast
+## What Companies Actually Do
 
-The performance gap between naive inference and optimized inference is easily 5-10x. Most of those gains come from better memory management (PagedAttention, quantization) and better batching, not from fancy algorithmic tricks.
+When serving AI models in production:
+
+**1. Use specialized software**
+
+Tools like vLLM or Text Generation Inference handle the batching and caching automatically. Don't build this yourself.
+
+**2. Quantize to 8-bit**
+
+Cuts memory in half, barely affects quality. Easy win.
+
+**3. Batch aggressively**
+
+Process multiple users together. This is how you get from serving 10 people to serving 100.
+
+**4. Profile first**
+
+Check if you're limited by compute (GPU doing math) or memory (GPU waiting for data). Most of the time it's memory.
+
+**5. Pick the right size**
+
+Don't use a 70B model if a 13B model works fine. Smaller = faster + cheaper + more users per GPU.
+
+## The Bottom Line
+
+Running big AI models is expensive because:
+- They're huge (100GB+)
+- They need to load from memory for every word
+- Memory is slower than compute
+- You need massive GPUs
+
+Companies make it cheaper by:
+- Caching previous words (KV cache)
+- Processing multiple users together (batching)
+- Using lower precision numbers (quantization)
+- Using small models to guess ahead (speculative decoding)
+
+Even with all these tricks, a single A100 GPU ($3-4/hour) might only serve 50 concurrent users. That's why ChatGPT Plus costs $20/month - the infrastructure is expensive.

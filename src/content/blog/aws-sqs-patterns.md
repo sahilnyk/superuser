@@ -1,49 +1,73 @@
 ---
-title: "SQS Patterns I Learned the Hard Way"
-description: "Dead letter queues saved me, visibility timeouts burned me, and why I stopped using FIFO queues for everything."
+title: "AWS SQS: What I Wish Someone Told Me First"
+description: "Simple explanations of queues, timeouts, and the mistakes that cost me hours of debugging."
 publishedAt: 2025-04-15
 draft: false
 ---
 
-I thought SQS was simple. Put messages in queue, read them out, delete when done. What could go wrong?
+SQS is Amazon's message queue. Think of it like a to-do list for your app. You add tasks to the list, and workers pick them up and complete them.
 
-Then I watched a payment get processed twice because I didn't understand visibility timeouts. Debugged a queue that mysteriously stopped processing after hitting 1 million messages. Paid AWS way more than I should have because of short polling.
+Sounds simple, right? I thought so too. Then things went wrong.
 
-## Standard vs FIFO (Just Use Standard)
+## What's a Queue Anyway?
 
-When I started, I defaulted to FIFO queues because "guaranteed ordering" sounded obviously better. Then I hit the throughput limits.
+Imagine you run a pizza shop. Orders come in faster than you can make pizzas. So you write each order on a sticky note and stick it on the wall. Your pizza makers grab notes one by one and make those pizzas.
 
-FIFO caps at 300 messages/sec normally, 3,000 with batching. Standard gives you basically unlimited throughput - tens of thousands per second, no problem.
+That's a queue. Orders are messages. Pizza makers are workers. The wall is SQS.
 
-The tradeoff: Standard queues can deliver messages more than once, and not always in order.
+## Standard vs FIFO Queues
 
-My take after a few years: just use Standard and make your consumers idempotent. It's way simpler than architecting around FIFO's throughput limits. The only time I reach for FIFO now is when ordering is genuinely critical - like processing bank transactions in sequence.
+AWS gives you two types:
 
-## Visibility Timeout Kicked My Ass
+**Standard Queue** - Fast but messy
+- Can handle tons of messages per second
+- But sometimes a message shows up twice
+- And orders might get mixed up
 
-This one took me a while to understand. When your code receives a message, SQS doesn't delete it immediately. It just hides it for X seconds (default 30). If you don't explicitly delete the message in that time, it pops back up and another worker grabs it.
+**FIFO Queue** - Organized but slower  
+- Messages arrive in exact order
+- Never duplicates
+- But limited to 3,000 messages per second
 
-I had a job that took 45 seconds to process. Kept seeing duplicates. Took me embarrassingly long to realize the visibility timeout was expiring mid-processing.
+I always picked FIFO at first because "order matters!" Then I hit the speed limit hard.
 
-The fix: set visibility timeout to at least 2-3x your job duration. Give yourself breathing room.
+**What I do now:** Use Standard queues. They're faster and cheaper. Just make sure your code can handle seeing the same message twice (more on that later).
+
+## Visibility Timeout: The Sneaky Problem
+
+This confused me for days. Here's what happens:
+
+1. Your code grabs a message from the queue
+2. SQS hides that message for 30 seconds (default)
+3. If your code doesn't delete it within 30 seconds, the message becomes visible again
+4. Another worker grabs the same message
+5. Now two workers are doing the same job!
+
+**My mistake:** I had a task that took 45 seconds. The timeout was 30 seconds. So halfway through processing, the message would reappear and get picked up again. Double work!
+
+**The fix:** Make the timeout longer than your longest job.
 
 ```python
-# If your job takes ~60 seconds, set timeout way higher
+# If your job takes 60 seconds, give it 3 minutes
 sqs.set_queue_attributes(
     QueueUrl=queue_url,
     Attributes={
-        'VisibilityTimeout': '180'  # 3 minutes, not 30 seconds
+        'VisibilityTimeout': '180'  # 180 seconds = 3 minutes
     }
 )
 ```
 
-## Dead Letter Queues Saved My Weekend
+Simple rule: timeout should be 3x your typical job time.
 
-Here's what happened: a malformed message got into my queue. My consumer would pick it up, fail to parse the JSON, crash, and not delete the message. It would become visible again 30 seconds later. Repeat forever.
+## Dead Letter Queues: Your Safety Net
 
-The queue basically stalled. That one poison message got picked up over and over, blocking everything behind it.
+Picture this: someone sends a broken message to your queue. Your code tries to process it, fails, and crashes. The message goes back to the queue. Another worker picks it up. Crashes again. Over and over.
 
-Dead letter queues fix this. After N failed receive attempts (I use 3), SQS automatically moves the message to a separate "dead letter" queue.
+That one bad message stops everything. Your queue is stuck.
+
+**Dead Letter Queue (DLQ) saves you:**
+
+After the message fails 3 times, SQS automatically moves it to a separate "failed messages" queue. Your main queue keeps working. You can check the DLQ later to see what broke.
 
 ```python
 import boto3
@@ -51,30 +75,22 @@ import json
 
 sqs = boto3.client('sqs')
 
-# Create DLQ
-dlq_response = sqs.create_queue(QueueName='my-queue-dlq')
-dlq_url = dlq_response['QueueUrl']
+# Step 1: Create the backup queue for failed messages
+dlq = sqs.create_queue(QueueName='failed-orders-queue')
 
-# Get DLQ ARN
-dlq_attrs = sqs.get_queue_attributes(
-    QueueUrl=dlq_url,
-    AttributeNames=['QueueArn']
-)
-dlq_arn = dlq_attrs['Attributes']['QueueArn']
-
-# Main queue points to DLQ
+# Step 2: Tell main queue to use it after 3 failures
 sqs.create_queue(
-    QueueName='my-queue',
+    QueueName='orders-queue',
     Attributes={
         'RedrivePolicy': json.dumps({
-            'deadLetterTargetArn': dlq_arn,
-            'maxReceiveCount': '3'
+            'deadLetterTargetArn': 'arn:of:dlq:here',
+            'maxReceiveCount': '3'  # fail 3 times → move to DLQ
         })
     }
 )
 ```
 
-Now poison messages go to the DLQ instead of blocking your queue forever. Set up a CloudWatch alarm for DLQ depth > 0 so you get paged when something's wrong.
+Set up an alert when messages land in the DLQ. That way you know when something's broken.
 
 ## Long Polling Cut My AWS Bill in Half
 
@@ -98,67 +114,90 @@ response = sqs.receive_message(
 
 One long poll can replace 20 short polls. My SQS costs dropped like 60% when I switched.
 
-## Always Batch Your Sends and Deletes
+## Send Messages in Batches (Save Money)
 
-I was sending messages one at a time like an idiot. SQS charges per API call, not per message. Sending 10 messages individually costs 10x more than sending them as one batch.
-
-```python
-# Expensive - 100 API calls
-for item in items:
-    sqs.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(item)
-    )
-
-# Cheap - 10 API calls (batch size maxes at 10)
-for i in range(0, len(items), 10):
-    batch = items[i:i+10]
-    entries = [
-        {'Id': str(j), 'MessageBody': json.dumps(item)}
-        for j, item in enumerate(batch)
-    ]
-    sqs.send_message_batch(QueueUrl=queue_url, Entries=entries)
-```
-
-Same deal with deletes. Always batch.
-
-## Fan-Out with SNS
-
-Once needed to send order confirmations to three different services - email, Slack notification, and analytics. My first instinct was to write code that sends to three different SQS queues.
-
-Don't do this. Use SNS as a pub/sub layer:
-
-```
-Order placed → SNS topic
-               ↓ (subscribes to topic)
-               ├→ SQS queue (email service)
-               ├→ SQS queue (slack service)
-               └→ SQS queue (analytics)
-```
-
-Publish once to SNS. It fans out to all the SQS queues automatically. If one consumer is slow or down, doesn't affect the others.
-
-## What I Wish I'd Known Earlier
-
-**Make consumers idempotent.** Standard queues will occasionally deliver the same message twice. Your code needs to handle this. Check if you've already processed this order ID, user ID, whatever.
-
-**Delete after processing, not before.** Obvious in hindsight, but I've seen code that deletes the message, then tries to process it, then crashes. Now the message is gone but the work didn't happen.
-
-**Message size limit is 256KB.** Hit this trying to queue up large JSON objects. Solution: store the data in S3, put the S3 key in the message body.
-
-**Monitor `ApproximateAgeOfOldestMessage`.** If this number keeps growing, your consumers are falling behind. Time to scale up.
-
-## When Queue Depth Grows
-
-Sometimes your queue backs up. Orders are coming in faster than you can process them. This is fine - that's what queues are for.
-
-If it's temporary, just let it ride. SQS holds messages for 14 days by default.
-
-If it's persistent, auto-scale your consumers based on queue depth. I usually target around 100 messages per consumer instance. When depth exceeds that, spin up more workers.
+I was sending 100 messages like this:
 
 ```python
-# Scale based on this CloudWatch metric
-ApproximateNumberOfMessages / DesiredConsumerInstances
+# Send one at a time - costs 100 API calls
+for order in orders:
+    sqs.send_message(QueueUrl=queue_url, MessageBody=order)
 ```
 
-The beauty of SQS is it buffers the spikes. Your API doesn't slow down waiting for background jobs. Queue grows, consumers catch up when they can.
+AWS charges per API call. This cost me $10 when it should've cost $1.
+
+**Send in batches instead:**
+
+```python
+# Send 10 at once - costs only 10 API calls
+batch = []
+for order in orders:
+    batch.append({'Id': str(len(batch)), 'MessageBody': order})
+    
+    if len(batch) == 10:  # SQS max is 10 per batch
+        sqs.send_message_batch(QueueUrl=queue_url, Entries=batch)
+        batch = []
+```
+
+10 messages in one request = 10x cheaper. Always batch.
+
+## Fan-Out: One Message, Multiple Services
+
+Say a user places an order. You need to:
+1. Send them an email
+2. Post to Slack  
+3. Log it for analytics
+
+**Bad way:** Your code sends to 3 different queues.
+
+**Better way:** Use SNS (another AWS service) to broadcast:
+
+```
+Order placed → SNS topic (like a loudspeaker)
+               ↓
+               ├→ Email queue
+               ├→ Slack queue
+               └→ Analytics queue
+```
+
+You publish once. SNS copies it to all three queues. Each service processes at its own pace. If email is slow, Slack isn't affected.
+
+## Things That Bit Me
+
+**1. Handle duplicates**
+
+Standard queues sometimes deliver the same message twice. Your code must check "did I already do this?"
+
+```python
+# Check if already processed
+if order_id in processed_orders:
+    return  # Skip it
+    
+# Process and remember
+process_order(order_id)
+processed_orders.add(order_id)
+```
+
+**2. Delete AFTER processing, not before**
+
+I once wrote code that deleted the message first, then processed it. The code crashed mid-processing. Message gone, work not done. Lost data.
+
+Always: process first, then delete.
+
+**3. Messages can't be huge**
+
+Max size is 256KB. If you need to send big data, store it in S3 first, then send the S3 link in the message.
+
+**4. Watch your queue depth**
+
+If messages pile up faster than you can process them, add more workers. AWS can auto-scale based on queue size.
+
+## The Bottom Line
+
+SQS is great when you understand these patterns. It absorbs traffic spikes, keeps your app responsive, and costs pennies if you batch and use long polling.
+
+My queue has processed millions of messages with zero manual intervention. Just make sure to:
+- Use long polling (WaitTimeSeconds=20)
+- Batch your sends
+- Set visibility timeout higher than job time  
+- Add a dead letter queue for safety

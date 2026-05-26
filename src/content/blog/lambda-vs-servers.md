@@ -1,106 +1,163 @@
 ---
-title: "Lambda vs Servers: When I Use Each"
-description: "Cold starts suck but so does managing servers. Here's when I reach for Lambda and when I don't."
+title: "Lambda vs Servers: Which One Should You Use?"
+description: "Simple breakdown of when serverless makes sense and when it's just extra cost."
 publishedAt: 2025-03-28
 draft: false
 ---
 
-I've run services both ways - Lambda and traditional servers. Neither is obviously better. They're different tradeoffs.
+Lambda and servers both run your code. But they work differently and cost differently.
 
-## What Lambda Actually Gives You
+## What's Lambda?
 
-**Zero idle cost.** If nobody hits your endpoint, you pay nothing. With EC2, that server is burning $30/month even at zero traffic.
+Lambda is Amazon's "serverless" service. You upload your code, and AWS runs it whenever needed. You don't manage servers - AWS handles everything.
 
-**Instant scaling.** Traffic spikes from 10 req/s to 1000? Lambda handles it automatically. With servers, you're either over-provisioned (wasting money) or under-provisioned (site goes down).
+**How it works:**
+1. Someone hits your API
+2. AWS spins up a container with your code
+3. Your code runs
+4. Container shuts down
+5. You pay only for those few seconds
 
-**No server maintenance.** No SSH. No patches. No "the disk filled up" pages at 2am.
+## What's a Server?
 
-The catch? Cold starts and a 15-minute execution limit.
+A traditional server (like EC2) runs 24/7. Even when nobody's using your app, it's running and you're paying.
 
-## Cold Starts Are Real
+## The Real Differences
 
-When a Lambda hasn't been used recently, AWS has to spin up a new container. This takes time:
+**Lambda gives you:**
+- Pay-per-use (nothing if nobody visits)
+- Auto-scales instantly (10 users → 10,000 users, no setup)
+- Zero maintenance (no updates, no patching)
 
-- Python/Node: 200-500ms
-- Go: 100-200ms  
-- Java without SnapStart: 2-8 seconds (brutal)
+**Lambda takes away:**
+- Predictable speed (cold starts)
+- Long-running tasks (15 min max)
+- Persistent connections (WebSockets are hard)
 
-Once warm, invocations are fast (single-digit milliseconds). But that first hit after idle time hurts.
+**Servers give you:**
+- Consistent speed
+- Run forever if needed
+- Database connection pools that stay alive
 
-I learned this the hard way. Built an API, tested it (always fast because I was hitting it repeatedly), deployed to prod. Users complained about random slow responses. Turned out to be cold starts on low-traffic endpoints.
+**Servers take away:**
+- Your time (maintenance, updates, scaling)
+- Your money (running 24/7 even at low traffic)
 
-## When Cold Starts Don't Matter
+## Cold Starts: The Lambda Tax
 
-If you're building:
-- Async background jobs (SQS triggers, S3 events)
-- Scheduled cron tasks
-- Internal tools with low traffic
-- APIs where p99 latency of 500ms is acceptable
+Here's the annoying part. When Lambda hasn't been used in a while, it takes time to start up:
 
-Cold starts aren't a problem. Most of my Lambda usage falls into these categories.
+- Python/Node: 200-500ms first time
+- Go: 100-200ms first time  
+- Java: 2-8 seconds (ouch)
 
-## When Cold Starts Kill You
+After that first "cold" start, it's fast (under 10ms). But that first hit after idle time is slow.
 
-High-traffic user-facing APIs with strict latency SLAs. If your p99 needs to be under 50ms, Lambda requires "provisioned concurrency" - which means paying to keep instances warm. At that point, you're paying for idle capacity anyway, so why not just use a server?
+**When it matters:** User-facing APIs where every millisecond counts
 
-## The Cost Crossover
+**When it doesn't:** Background jobs, scheduled tasks, internal tools
 
-I ran the numbers for a simple API endpoint:
+## The Cost Math
 
-**Lambda at 100 req/s, 200ms duration, 512MB memory:**
-```
-~10M requests/month
-Cost: ~$400/month
-```
+Let me show you real numbers.
 
-**t3.medium (2 vCPU, 4GB RAM):**
-```
-Handles 100+ req/s easily
-Cost: $30/month
-```
+**Lambda serving 100 requests/sec:**
+- 10 million requests/month
+- ~$400/month
 
-Lambda is 10x more expensive at steady load. The break-even is somewhere around 1-5M requests/month, depending on your specifics.
+**Small server (t3.medium):**
+- Handles 100+ req/sec easily
+- $30/month flat
 
-But that $30 doesn't include:
-- Load balancer costs
-- My time setting up auto-scaling
-- On-call burden when the server fills disk/runs out of memory
+Lambda costs 10x more at constant traffic. But wait...
+
+That $30 doesn't include:
+- Your time setting up auto-scaling
+- Load balancer fees
 - Over-provisioning for traffic spikes
+- Getting paged at 3am when disk is full
 
-For me, Lambda is often worth the premium.
+For me? I'll pay the Lambda premium to avoid that headache.
 
-## Where Servers Win Hard
+## When Lambda Wins
 
-**Database-heavy workloads.** Lambda creates a new DB connection on every cold start. With RDS, you'll exhaust connection pools fast. RDS Proxy helps but adds latency and cost.
+**Background jobs**
+```
+Image uploaded to S3 → Lambda resizes it → saves thumbnail
+```
 
-A server keeps a persistent connection pool. Way simpler.
+Perfect for Lambda. Sporadic, short-lived, scales automatically.
 
-**WebSockets or long-lived connections.** Lambda isn't built for this. You can hack it with API Gateway WebSocket APIs, but it's painful.
+**Scheduled tasks**
 
-**Anything over 15 minutes.** Hard Lambda limit. If you're processing video, training models, running large batch jobs - use a server or Step Functions + multiple Lambdas.
+Need to send a daily report at 9am? Why run a server 24/7 for 5 minutes of work? Lambda costs pennies.
 
-## My Current Pattern
+**Spiky traffic**
 
-**User-facing APIs** → ECS Fargate usually. Consistent latency matters, traffic is somewhat predictable.
+Your app normally gets 10 req/sec, but occasionally spikes to 5,000 when you hit HackerNews front page. 
 
-**Background jobs** → Lambda. Processing S3 uploads, handling SQS messages, sending emails. Traffic is spiky, latency doesn't matter.
+With servers, you either:
+- Pay for 5,000 req/sec capacity 24/7 (expensive)
+- Crash during spikes (bad)
 
-**Scheduled tasks** → Lambda. Why run a server 24/7 to execute a 5-minute job once a day?
+Lambda just scales. No setup needed.
 
-**Low-traffic internal tools** → Lambda. Cost is negligible, don't want to maintain servers.
+## When Servers Win
 
-This isn't a compromise - it's using the right tool for each job.
+**Database-heavy apps**
 
-## The Real Decision Criteria
+Lambda creates a new database connection every time. With 100 concurrent Lambdas, that's 100 connections. Your database freaks out.
 
-Ask yourself:
+Servers keep a connection pool alive. Way more efficient.
 
-1. Is traffic consistent and >50 req/s 24/7? → Probably cheaper on servers
-2. Do I need persistent connections (WebSockets, DB pools)? → Servers
-3. Does it run for >15 minutes? → Servers (or step functions)
-4. Is p99 latency under 100ms critical? → Servers (unless you pay for provisioned concurrency)
-5. Is traffic super spiky or near-zero most of the time? → Lambda
-6. Is it triggered by AWS events (S3, SQS)? → Lambda is the easiest path
-7. Am I okay with some occasional 200-500ms responses? → Lambda is fine
+**WebSockets or long connections**
 
-When I'm starting something new and don't know the traffic patterns yet, I default to Lambda. It's less to manage, scales automatically, and I can always move to servers later when the economics make sense.
+Lambda isn't built for this. You can hack it with API Gateway WebSockets, but it's messy.
+
+**Long tasks**
+
+Processing video? Training models? Anything over 15 minutes? Lambda hard-stops at 15 minutes. Use a server.
+
+**Consistent high traffic**
+
+If you're doing 1,000 req/sec 24/7, servers are way cheaper. Lambda pricing adds up fast.
+
+## What I Actually Do
+
+I use both:
+
+**User-facing API** → Server (ECS/Fargate)
+- Needs consistent speed
+- Heavy database use
+- Predictable traffic
+
+**Image processing** → Lambda
+- Triggered by S3 uploads
+- Sporadic and spiky
+- Don't want to manage servers for it
+
+**Cron jobs** → Lambda
+- Runs once a day for 2 minutes
+- Would waste money on a 24/7 server
+
+**Internal tools** → Lambda
+- Low traffic
+- Don't care about cold starts
+- Costs almost nothing
+
+## Quick Decision Guide
+
+Use **Lambda** if:
+- Traffic is unpredictable or very low
+- Tasks run for less than 15 minutes
+- You want zero maintenance
+- It's triggered by AWS events (S3, SQS)
+
+Use **Servers** if:
+- Traffic is steady and high (>50 req/s all day)
+- You need database connection pools
+- You need WebSockets
+- Tasks run for hours
+- You need every millisecond of latency
+
+When in doubt? Start with Lambda. It's easier to begin with, and you can always move to servers later when costs justify it.
