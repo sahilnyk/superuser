@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../components/layout/BaseLayout.astro";
+import Comments from "../../components/Comments.astro";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("blog");
@@ -34,6 +35,7 @@ const formatDate = (date: Date) => {
     <div class="content">
       <Content />
     </div>
+    <Comments />
   </article>
 </BaseLayout>
 
