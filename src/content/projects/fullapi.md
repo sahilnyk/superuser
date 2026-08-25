@@ -1,7 +1,7 @@
 ---
 title: "fullapi"
-description: "A FastAPI scaffolding CLI tool that generates production-ready project structures with zero dependencies. Supports JWT auth, multiple databases (PostgreSQL/MySQL/SQLite), Docker, and Terraform infrastructure setup."
-url: "https://github.com/sahilnyk/fullapi"
+description: "A CLI that generates a full FastAPI project from one spec file, then lets you check anytime if your code drifted from what that spec promises."
+url: "https://pypi.org/project/fullapi/"
 featured: true
-techs: ["Python", "FastAPI", "Docker", "Terraform", "PostgreSQL"]
+techs: ["Python", "FastAPI", "SQLAlchemy", "PostgreSQL", "CLI"]
 ---
