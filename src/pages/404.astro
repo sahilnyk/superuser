@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Container from "../components/ui/Container.astro";
+
+const quotes = [
+  "This page is taking a longer route than expected.",
+  "Lost? So is this page.",
+  "Well, this is awkward.",
+  "404: Page not found. Also, my motivation.",
+  "This page ghosted you.",
+];
+
+const quote = quotes[Math.floor(Math.random() * quotes.length)];
+---
+
+<BaseLayout title="404 - Page Not Found" description="The page you're looking for doesn't exist.">
+  <Container>
+    <section class="not-found">
+      <span class="code">404</span>
+      <p class="quote">{quote}</p>
+      <a href="/" class="home-link">Go home</a>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .code {
+    font-size: 5rem;
+    font-weight: 200;
+    opacity: 0.3;
+    line-height: 1;
+    font-family: var(--font-mono);
+  }
+
+  .quote {
+    font-size: var(--text-sm);
+    opacity: 0.6;
+    max-width: 300px;
+    line-height: 1.6;
+  }
+
+  .home-link {
+    font-size: var(--text-xs);
+    color: var(--link-color);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity var(--transition-base);
+  }
+
+  .home-link:hover {
+    opacity: 1;
+  }
+</style>
