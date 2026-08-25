@@ -44,7 +44,6 @@ const projectFeatures = [
             period="hour"
             description="Flexible engagement"
             features={hourlyFeatures}
-            icon="hourly"
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
           />
           <PricingCard
@@ -52,7 +51,6 @@ const projectFeatures = [
             price="Custom"
             description="Fixed scope projects"
             features={projectFeatures}
-            icon="project"
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
           />
         </div>
@@ -80,29 +78,6 @@ const projectFeatures = [
   .highlight {
     color: rgba(96, 165, 250, 0.9);
     font-weight: 500;
-    position: relative;
-    transition: all 0.3s ease;
-  }
-
-  .highlight::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(96, 165, 250, 0.4),
-      transparent
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .highlight:hover::after {
-    opacity: 1;
   }
 
   .pricing-section {

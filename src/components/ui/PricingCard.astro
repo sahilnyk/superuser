@@ -6,11 +6,10 @@ interface Props {
   description: string;
   features: string[];
   recommended?: boolean;
-  icon?: "hourly" | "project";
   calLink?: string;
 }
 
-const { title, price, period, description, features, recommended = false, icon = "hourly", calLink } = Astro.props;
+const { title, price, period, description, features, recommended = false, calLink } = Astro.props;
 ---
 
 <article class:list={["pricing-card", { recommended }]}>
@@ -18,19 +17,6 @@ const { title, price, period, description, features, recommended = false, icon =
     <div class="glass-overlay"></div>
     <div class="header-content">
       <div class="plan-info">
-        <div class="plan-icon">
-          {icon === "hourly" ? (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle class="circle-pulse" cx="10" cy="10" r="7" stroke="currentColor" stroke-width="0.5"/>
-              <circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.6"/>
-            </svg>
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect class="rect-rotate" x="5" y="5" width="10" height="10" stroke="currentColor" stroke-width="0.5" rx="1"/>
-              <circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.6"/>
-            </svg>
-          )}
-        </div>
         <span class="plan-name">{title}</span>
       </div>
       {recommended && <span class="badge">Recommended</span>}
@@ -120,12 +106,6 @@ const { title, price, period, description, features, recommended = false, icon =
     gap: 0.5rem;
   }
 
-  .plan-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--text-muted);
-  }
-
   .plan-name {
     font-size: 0.875rem;
     font-weight: 500;
@@ -159,6 +139,7 @@ const { title, price, period, description, features, recommended = false, icon =
   }
 
   .price .amount {
+    font-family: "Archivo Black", sans-serif;
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
@@ -225,37 +206,6 @@ const { title, price, period, description, features, recommended = false, icon =
     flex-shrink: 0;
     margin-top: 0.125rem;
     color: var(--text-muted);
-  }
-
-  /* SVG Animations */
-  @keyframes pulse-ring {
-    0%, 100% {
-      opacity: 0.3;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.1;
-      transform: scale(1.2);
-    }
-  }
-
-  @keyframes rotate-rect {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .circle-pulse {
-    animation: pulse-ring 3s ease-in-out infinite;
-    transform-origin: center;
-  }
-
-  .rect-rotate {
-    animation: rotate-rect 20s linear infinite;
-    transform-origin: center;
   }
 
   .schedule-btn {
