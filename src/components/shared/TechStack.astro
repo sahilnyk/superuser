@@ -14,6 +14,8 @@ const technologies = [
   { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain.svg" },
   { name: "LangChain", icon: "https://api.iconify.design/simple-icons:langchain.svg?color=%23ffffff" },
   { name: "Shadcn", icon: "https://ui.shadcn.com/apple-touch-icon.png" },
+  { name: "Claude", icon: "https://api.iconify.design/simple-icons:anthropic.svg?color=%23ffffff" },
+  { name: "Jenkins", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg" },
 ];
 ---
 
@@ -92,6 +94,11 @@ const technologies = [
   }
 
   .tech-item:hover {
+    opacity: 1;
+  }
+
+  .tech-item:hover img {
+    filter: none;
     opacity: 1;
   }
 

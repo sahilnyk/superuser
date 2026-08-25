@@ -32,17 +32,6 @@ const latestPosts = posts
   )
   .slice(0, 3);
 
-const experiences = await getCollection("experience");
-const sortedExperiences = experiences.sort(
-  (a: CollectionEntry<"experience">, b: CollectionEntry<"experience">) => {
-    // Current positions first
-    if (a.data.current && !b.data.current) return -1;
-    if (!a.data.current && b.data.current) return 1;
-    // Then sort by start date (most recent first)
-    return b.data.startDate.getTime() - a.data.startDate.getTime();
-  }
-);
-
 const projects = await getCollection("projects");
 const featuredProjects = projects.filter((project: CollectionEntry<"projects">) => project.data.featured).slice(0, 3);
 ---
@@ -81,14 +70,14 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     <section class="video-intro">
       <div class="video-container">
         <iframe
-          src="https://www.youtube.com/embed/jNQXAC9IVRw?si=0JQa2xjufCpN2v8K"
+          src="https://www.youtube.com/embed/J---aiyznGQ"
           title="Video Introduction"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
         ></iframe>
       </div>
-      <p class="video-note"><em>will change this with real intro coz haven't made one yet</em></p>
+      <p class="video-note"><em>will update this once I make my intro video</em></p>
     </section>
 
     <TechStack />
@@ -143,34 +132,6 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
       </ContentList>
     </Section>
 
-    <Section>
-      <div class="section-header">
-        <h2>{site.sections.experience.title}</h2>
-        <a href="/experience">{site.sections.experience.viewAllText}</a>
-      </div>
-      <div class="content-list">
-        {
-          sortedExperiences.slice(0, 3).map((exp) => {
-            const [role, company] = exp.data.title.split(" at ");
-            return (
-              <article>
-                <div class="exp-header">
-                  <div class="exp-role">
-                    <img src={exp.data.logo} alt="" class="company-logo" />
-                    <span class="role-title">{role}</span>
-                  </div>
-                  <time>
-                    {formatDate(exp.data.startDate)} - {exp.data.current ? "Present" : formatDate(exp.data.endDate)}
-                  </time>
-                </div>
-                {company && <p class="company-name">@{company}</p>}
-                <p class="muted-text">{exp.data.description}</p>
-              </article>
-            );
-          })
-        }
-      </div>
-    </Section>
   </Container>
 </BaseLayout>
 
@@ -186,6 +147,8 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     padding: 4rem 0;
   }
 
+
+
   .introduction {
     margin: 1.5rem 0;
     opacity: 0.9;
@@ -194,11 +157,16 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
   .mention-link {
     color: #60a5fa;
     text-decoration: none;
-    transition: opacity var(--transition-base);
+    background-image: linear-gradient(#60a5fa, #60a5fa);
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    background-position: left center;
+    transition: background-size 0.3s ease, color 0.3s ease;
   }
 
   .mention-link:hover {
-    opacity: 0.8;
+    color: #0f172a;
+    background-size: 100% 100%;
   }
 
   .section {
@@ -223,38 +191,6 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
   .title-row a {
     flex: 0 1 auto;
     min-width: 0;
-  }
-
-  .exp-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .exp-role {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .role-title {
-    font-size: var(--text-sm);
-    font-weight: 500;
-  }
-
-  .company-logo {
-    width: 1.5rem;
-    height: 1.5rem;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .company-name {
-    font-size: var(--text-xs);
-    opacity: 0.6;
-    margin: 0 0 0.75rem 2.25rem;
   }
 
   time {
@@ -293,6 +229,14 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     opacity: 1;
   }
 
+  .social-link span {
+    transition: color 0.3s ease;
+  }
+
+  .social-link:hover span {
+    color: #60a5fa;
+  }
+
   .social-link svg {
     flex-shrink: 0;
   }
@@ -302,6 +246,18 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: video-intro-in 0.6s ease-out;
+  }
+
+  @keyframes video-intro-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .video-container {
@@ -414,26 +370,6 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
 
     .title-row {
       gap: 1rem;
-    }
-
-    .exp-header {
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 0.5rem;
-      margin-bottom: 0.1rem;
-    }
-
-    .exp-role {
-      flex: 1;
-    }
-
-    .role-title {
-      font-size: 0.8rem;
-    }
-
-    .company-name {
-      margin-left: 2.25rem;
-      margin-top: 0;
     }
 
     time {
