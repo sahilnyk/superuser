@@ -15,7 +15,7 @@
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
       </svg>
       <input type="text" id="search-input" placeholder="Search posts, projects, notes..." autocomplete="off" />
-      <kbd class="esc-kbd">Esc</kbd>
+      <button type="button" id="search-esc" class="esc-kbd" aria-label="Close search">Esc</button>
     </div>
     <div class="search-results" id="search-results"></div>
   </div>
@@ -31,11 +31,7 @@
 
   let searchIndex: SearchItem[] | null = null;
   let activeIndex = -1;
-
-  const trigger = document.getElementById("search-trigger");
-  const overlay = document.getElementById("search-overlay");
-  const input = document.getElementById("search-input") as HTMLInputElement | null;
-  const results = document.getElementById("search-results");
+  let bound = false;
 
   const escapeHtml = (str: string) =>
     str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
@@ -48,6 +44,8 @@
   }
 
   function openModal() {
+    const overlay = document.getElementById("search-overlay");
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
     overlay?.classList.add("open");
     document.body.style.overflow = "hidden";
     input?.focus();
@@ -55,14 +53,19 @@
   }
 
   function closeModal() {
+    const overlay = document.getElementById("search-overlay");
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
+    const results = document.getElementById("search-results");
     overlay?.classList.remove("open");
     document.body.style.overflow = "";
     if (input) input.value = "";
+    if (results) results.innerHTML = "";
     activeIndex = -1;
-    renderResults([]);
   }
 
   function renderResults(items: SearchItem[]) {
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
+    const results = document.getElementById("search-results");
     if (!results) return;
     if (!input?.value) {
       results.innerHTML = "";
@@ -76,7 +79,6 @@
       .map(
         (item, i) => `
         <a href="${item.url}" class="search-result${i === activeIndex ? " active" : ""}" data-index="${i}">
-          <span class="result-section">${escapeHtml(item.section)}</span>
           <span class="result-title">${escapeHtml(item.title)}</span>
           <span class="result-desc">${escapeHtml(item.description)}</span>
         </a>`
@@ -85,6 +87,7 @@
   }
 
   function getMatches() {
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
     const query = input?.value.trim().toLowerCase() ?? "";
     if (!query || !searchIndex) return [];
     return searchIndex.filter(
@@ -94,46 +97,69 @@
     );
   }
 
-  trigger?.addEventListener("click", openModal);
-
-  overlay?.addEventListener("click", (e) => {
-    if (e.target === overlay) closeModal();
-  });
-
-  input?.addEventListener("input", () => {
+  function setup() {
+    const overlay = document.getElementById("search-overlay");
+    if (overlay) {
+      overlay.classList.remove("open");
+      document.body.style.overflow = "";
+    }
     activeIndex = -1;
-    renderResults(getMatches());
-  });
 
-  document.addEventListener("keydown", (e) => {
-    const isOpen = overlay?.classList.contains("open");
+    if (bound) return;
+    bound = true;
 
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-      e.preventDefault();
-      isOpen ? closeModal() : openModal();
-      return;
-    }
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("#search-trigger")) {
+        openModal();
+      } else if (target.closest("#search-esc")) {
+        closeModal();
+      } else if (target.id === "search-overlay") {
+        closeModal();
+      }
+    });
 
-    if (!isOpen) return;
+    document.addEventListener("input", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.id !== "search-input") return;
+      activeIndex = -1;
+      renderResults(getMatches());
+    });
 
-    if (e.key === "Escape") {
-      closeModal();
-      return;
-    }
+    document.addEventListener("keydown", (e) => {
+      const overlayEl = document.getElementById("search-overlay");
+      const isOpen = overlayEl?.classList.contains("open");
 
-    const matches = getMatches();
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      activeIndex = Math.min(activeIndex + 1, matches.length - 1);
-      renderResults(matches);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      activeIndex = Math.max(activeIndex - 1, 0);
-      renderResults(matches);
-    } else if (e.key === "Enter" && activeIndex >= 0 && matches[activeIndex]) {
-      window.location.href = matches[activeIndex].url;
-    }
-  });
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        isOpen ? closeModal() : openModal();
+        return;
+      }
+
+      if (!isOpen) return;
+
+      if (e.key === "Escape") {
+        closeModal();
+        return;
+      }
+
+      const matches = getMatches();
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, matches.length - 1);
+        renderResults(matches);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        renderResults(matches);
+      } else if (e.key === "Enter" && activeIndex >= 0 && matches[activeIndex]) {
+        window.location.href = matches[activeIndex].url;
+      }
+    });
+  }
+
+  setup();
+  document.addEventListener("astro:page-load", setup);
 </script>
 
 <style>
@@ -289,6 +315,7 @@
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.03em;
+    cursor: pointer;
     color: var(--text-muted);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border-color);
@@ -304,45 +331,51 @@
     scrollbar-color: rgba(96, 165, 250, 0.3) transparent;
   }
 
-  .search-empty {
+  .search-results :global(.search-empty) {
     padding: 1.5rem 1rem;
     text-align: center;
     font-size: 0.875rem;
     opacity: 0.5;
   }
 
-  .search-result {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: baseline;
-    gap: 0.4rem 0.75rem;
+  .search-results :global(.search-result) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
     padding: 0.7rem 0.75rem 0.7rem 1rem;
     margin: 0.15rem 0;
     border-radius: 8px;
-    border-left: 2px solid transparent;
     text-decoration: none;
     color: var(--text-color);
-    transition: background var(--transition-base), border-color var(--transition-base);
+    background: rgba(96, 165, 250, 0);
+    transition: background 0.25s ease;
   }
 
-  .search-result:hover,
-  .search-result.active {
+  .search-results :global(.search-result)::before {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: #60a5fa;
+    transform: scaleY(0);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .search-results :global(.search-result:hover),
+  .search-results :global(.search-result.active) {
     background: rgba(96, 165, 250, 0.1);
-    border-left-color: #60a5fa;
   }
 
-  .result-section {
-    grid-row: 1;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #60a5fa;
-    opacity: 0.9;
+  .search-results :global(.search-result:hover)::before,
+  .search-results :global(.search-result.active)::before {
+    transform: scaleY(1);
   }
 
-  .result-title {
-    grid-row: 1;
-    min-width: 0;
+  .search-results :global(.result-title) {
     font-size: 0.875rem;
     font-weight: 500;
     overflow: hidden;
@@ -350,26 +383,13 @@
     white-space: nowrap;
   }
 
-  .result-desc {
-    grid-column: 1 / -1;
+  .search-results :global(.result-desc) {
     font-size: 0.8rem;
     opacity: 0.55;
     line-height: 1.4;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    min-width: 0;
-  }
-
-  @media (max-width: 480px) {
-    .search-result {
-      grid-template-columns: 1fr;
-    }
-
-    .result-section,
-    .result-title {
-      grid-row: auto;
-    }
   }
 
   @media (max-width: 640px) {
