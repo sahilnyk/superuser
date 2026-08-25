@@ -1,7 +1,7 @@
 ---
 title: "deburger"
-description: "AI Code Quality Guardian - Monitor how AI changes your code, track requirement alignment, and catch vulnerabilities. Acts as a production-grade quality gate for AI-assisted development, analyzing changes, running tests, and keeping AI on track."
-url: "https://github.com/sahilnyk/deburger"
+description: "deburger scans your Python code for expensive cloud patterns before they hit production. It flags things like S3 calls in loops or unbounded queries, then estimates the actual monthly dollar cost of each one."
+url: "https://pypi.org/project/deburger/"
 featured: true
-techs: ["Python", "AI Safety", "Security Testing", "Code Analysis"]
+techs: ["Python", "AWS", "Cost Optimization", "CLI"]
 ---
