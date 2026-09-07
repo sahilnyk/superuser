@@ -5,16 +5,16 @@ const technologies = [
   { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
   { name: "PostgreSQL", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
   { name: "FastAPI", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" },
-  { name: "Django", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" },
-  { name: "AWS", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" },
+  { name: "Django", icon: "https://api.iconify.design/simple-icons:django.svg?color=%2344B78B" },
+  { name: "AWS", icon: "https://api.iconify.design/simple-icons:amazonwebservices.svg?color=%23FF9900" },
   { name: "Docker", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" },
   { name: "Terraform", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/terraform/terraform-original.svg" },
   { name: "Git", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
   { name: "Linux", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" },
   { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain.svg" },
-  { name: "LangChain", icon: "https://api.iconify.design/simple-icons:langchain.svg?color=%23ffffff" },
-  { name: "Shadcn", icon: "https://ui.shadcn.com/apple-touch-icon.png" },
-  { name: "Claude", icon: "https://api.iconify.design/simple-icons:anthropic.svg?color=%23ffffff" },
+  { name: "LangChain", icon: "https://api.iconify.design/simple-icons:langchain.svg?color=%231C9C86" },
+  { name: "Shadcn", icon: "https://api.iconify.design/simple-icons:shadcnui.svg?color=%23FFFFFF" },
+  { name: "Claude", icon: "https://api.iconify.design/simple-icons:anthropic.svg?color=%23D97757" },
   { name: "Jenkins", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg" },
 ];
 ---
@@ -89,25 +89,19 @@ const technologies = [
     align-items: center;
     gap: 0.75rem;
     min-width: 80px;
-    opacity: 0.6;
-    transition: opacity var(--transition-base);
+    opacity: 0.85;
+    transition: opacity var(--transition-base), transform var(--transition-base);
   }
 
   .tech-item:hover {
     opacity: 1;
-  }
-
-  .tech-item:hover img {
-    filter: none;
-    opacity: 1;
+    transform: translateY(-3px);
   }
 
   .tech-item img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     object-fit: contain;
-    filter: grayscale(1) brightness(2);
-    opacity: 0.7;
   }
 
   .tech-item span {

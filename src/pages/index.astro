@@ -41,8 +41,13 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     <section class="hero">
       <h1>{site.name}</h1>
       <p class="subtitle">{site.title}</p>
+
+      <figure class="sketch-figure">
+        <img class="sketch-figure__img" src="/images/sahilnyk-sketch.jpg" alt="Sketch of Sahil on a beach" loading="lazy" width="1866" height="2048" />
+      </figure>
+
       <p class="introduction">
-        I'm constantly learning and evolving. I love diving into new ideas and finding creative ways to solve problems. When I'm not coding, you'll find me strategizing on <a href="https://www.chess.com/member/sah669" target="_blank" rel="noopener noreferrer" class="mention-link">@chess.com</a> or grinding problems on <a href="https://www.hackerrank.com/profile/contactsahilpna1" target="_blank" rel="noopener noreferrer" class="mention-link">@hackerrank</a>.
+        I'm <span class="hand-underline">constantly learning<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C 40 2, 80 11, 120 6 S 190 3, 198 7" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" pathLength="1"/></svg></span> and evolving. I love diving into new ideas and finding creative ways to solve problems. When I'm not coding, you'll find me strategizing on <a href="https://www.chess.com/member/sah669" target="_blank" rel="noopener noreferrer" class="mention-link">@chess.com</a> or grinding problems on <a href="https://www.hackerrank.com/profile/contactsahilpna1" target="_blank" rel="noopener noreferrer" class="mention-link">@hackerrank</a>.
       </p>
       {
         site.socialLinks && (
@@ -152,6 +157,56 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
   .introduction {
     margin: 1.5rem 0;
     opacity: 0.9;
+  }
+
+  .sketch-figure {
+    position: relative;
+    width: min(300px, 72%);
+    margin: 2.25rem 0 2.75rem;
+  }
+
+  .sketch-figure__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    filter: grayscale(1) contrast(1.05);
+    opacity: 0.92;
+  }
+
+  .hand-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .hand-underline svg {
+    position: absolute;
+    left: -0.1em;
+    right: -0.1em;
+    bottom: -0.3em;
+    width: calc(100% + 0.2em);
+    height: 0.5em;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hand-underline path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: hand-draw 0.7s ease 0.4s forwards;
+  }
+
+  @keyframes hand-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hand-underline path {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
   }
 
   .mention-link {
@@ -322,9 +377,12 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
 
   .video-note {
     margin-top: 1.5rem;
-    font-size: var(--text-xs);
-    opacity: 0.5;
+    font-family: "Gochi Hand", "Segoe Script", cursive;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    opacity: 0.55;
     text-align: center;
+    transform: rotate(-1.5deg);
   }
 
   @media (max-width: 640px) {

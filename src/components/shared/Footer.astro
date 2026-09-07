@@ -1,10 +1,25 @@
 ---
+const EMOJI = "https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.1.2/img/apple/64";
+const emojis = [
+  { code: "1f525", label: "fire" },
+  { code: "2764-fe0f", label: "love" },
+  { code: "1f3c4", label: "surfing" },
+];
 ---
 
 <footer class="footer">
   <div class="big-text">
     sahilnyk
   </div>
+  <p class="made-with">
+    made with
+    <span class="emoji-swap" aria-hidden="true">
+      {emojis.map((e, i) => (
+        <img src={`${EMOJI}/${e.code}.png`} alt={e.label} style={`--i:${i}`} />
+      ))}
+    </span>
+    in India
+  </p>
 </footer>
 
 <style>
@@ -14,14 +29,60 @@
     margin-top: 0;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+
+  .made-with {
+    margin: -0.5rem 0 1.5rem;
+    font-size: var(--text-xs);
+    opacity: 0.5;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .emoji-swap {
+    position: relative;
+    display: inline-block;
+    width: 1.05em;
+    height: 1.05em;
+    vertical-align: -0.2em;
+  }
+
+  .emoji-swap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: emoji-swap 6s infinite;
+    animation-delay: calc(var(--i) * -2s);
+  }
+
+  @keyframes emoji-swap {
+    0% { opacity: 0; transform: translateY(3px) scale(0.9); }
+    6% { opacity: 1; transform: none; }
+    27% { opacity: 1; transform: none; }
+    33% { opacity: 0; transform: translateY(-3px) scale(0.9); }
+    100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .emoji-swap img {
+      animation: none;
+    }
+    .emoji-swap img:first-child {
+      opacity: 1;
+    }
   }
 
   .big-text {
     font-size: clamp(50px, 7vw, 150px);
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.06);
     line-height: 1;
     letter-spacing: -0.01em;
     pointer-events: none;
@@ -31,12 +92,14 @@
     white-space: nowrap;
     width: 100%;
     max-width: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 28%, transparent 86%);
+    mask-image: linear-gradient(to bottom, #000 28%, transparent 86%);
   }
 
   @media (max-width: 1024px) {
     .big-text {
       font-size: clamp(45px, 7vw, 120px);
-      color: rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.08);
     }
   }
 
@@ -47,7 +110,7 @@
     .big-text {
       font-size: clamp(90px, 18vw, 180px);
       letter-spacing: -0.02em;
-      color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.09);
     }
   }
 
@@ -58,7 +121,7 @@
     .big-text {
       font-size: clamp(75px, 20vw, 150px);
       letter-spacing: -0.015em;
-      color: rgba(255, 255, 255, 0.22);
+      color: rgba(255, 255, 255, 0.1);
     }
   }
 </style>
