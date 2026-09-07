@@ -11,22 +11,82 @@ const posts = await getCollection("blog", ({ data }) => {
 });
 
 const sortedPosts = posts.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+// group by year, newest year first
+const byYear = new Map<number, typeof sortedPosts>();
+for (const post of sortedPosts) {
+  const year = post.data.publishedAt.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(post);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+
+const shortDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 ---
 
 <BaseLayout title="Blog" description="Read my latest blog posts">
   <Container>
     <BaseHero title="Blog" description="Read my latest blog posts" />
-    <ContentList>
-      {
-        sortedPosts.map((post) => (
-          <ArticleCard
-            title={post.data.title}
-            description={post.data.description}
-            url={`/blog/${post.id}`}
-            date={post.data.publishedAt}
-          />
-        ))
-      }
-    </ContentList>
+    {
+      years.map((year) => (
+        <section class="year-group">
+          <div class="year-ghost" aria-hidden="true">{year}</div>
+          <ContentList>
+            {byYear.get(year)!.map((post) => (
+              <ArticleCard
+                title={post.data.title}
+                description={post.data.description}
+                url={`/blog/${post.id}`}
+                date={post.data.publishedAt}
+                dateLabel={shortDate(post.data.publishedAt)}
+              />
+            ))}
+          </ContentList>
+        </section>
+      ))
+    }
   </Container>
 </BaseLayout>
+
+<style>
+  .year-group {
+    position: relative;
+    margin-top: 3.5rem;
+  }
+
+  .year-group:first-of-type {
+    margin-top: 1.25rem;
+  }
+
+  /* giant faint year, footer-style: mask-faded, sits behind the first posts */
+  .year-ghost {
+    position: absolute;
+    top: -0.16em;
+    left: -0.045em;
+    font-size: 118px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 88%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 88%);
+  }
+
+  .year-group :global(.content-list) {
+    position: relative;
+    z-index: 1;
+    padding-top: 2.7rem;
+  }
+
+  @media (max-width: 640px) {
+    .year-ghost {
+      font-size: 74px;
+    }
+    .year-group :global(.content-list) {
+      padding-top: 2.1rem;
+    }
+  }
+</style>

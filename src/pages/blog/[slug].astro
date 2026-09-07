@@ -5,14 +5,20 @@ import BaseLayout from "../../components/layout/BaseLayout.astro";
 import Comments from "../../components/Comments.astro";
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection("blog");
-  return posts.map((post) => ({
+  const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+  );
+  return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post },
+    props: {
+      post,
+      newerPost: posts[i - 1] ?? null,
+      olderPost: posts[i + 1] ?? null,
+    },
   }));
 }) satisfies GetStaticPaths;
 
-const { post } = Astro.props;
+const { post, newerPost, olderPost } = Astro.props;
 const { Content } = await render(post);
 
 const formatDate = (date: Date) => {
@@ -54,6 +60,27 @@ const readingTime = (content: string) => {
       <div class="content" id="post-content">
         <Content />
       </div>
+
+      {
+        (newerPost || olderPost) && (
+          <nav class="post-nav">
+            {newerPost ? (
+              <a href={`/blog/${newerPost.id}`} class="pn">
+                <span>newer</span>
+                {newerPost.data.title}
+              </a>
+            ) : (
+              <span />
+            )}
+            {olderPost && (
+              <a href={`/blog/${olderPost.id}`} class="pn pn-older">
+                <span>older</span>
+                {olderPost.data.title}
+              </a>
+            )}
+          </nav>
+        )
+      }
 
       <Comments />
     </article>
@@ -204,9 +231,8 @@ const readingTime = (content: string) => {
   }
 
   header {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     padding-top: 2rem;
-    padding-bottom: 2rem;
   }
 
   h1 {
@@ -312,6 +338,42 @@ const readingTime = (content: string) => {
   .content :global(hr) {
     margin: 2.5rem 0;
     opacity: 0.2;
+  }
+
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .pn {
+    font-size: var(--text-sm);
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity var(--transition-base);
+  }
+
+  .pn::after {
+    display: none;
+  }
+
+  .pn:hover {
+    opacity: 1;
+  }
+
+  .pn span {
+    display: block;
+    font-size: var(--text-xs);
+    opacity: 0.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .pn-older {
+    text-align: right;
   }
 
   .related-posts {

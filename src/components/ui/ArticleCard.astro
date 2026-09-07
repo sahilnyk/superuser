@@ -4,18 +4,17 @@ interface Props {
   description?: string;
   url: string;
   date?: Date;
+  dateLabel?: string;
   tags?: string[];
 }
 
-const { title, description, url, date, tags } = Astro.props;
+const { title, description, url, date, dateLabel, tags } = Astro.props;
 import { formatDate } from "../../utils/date";
 ---
 
 <article>
-  <div class="title-row">
-    <a href={url} class="highlight-link">{title}</a>
-    {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
-  </div>
+  <a href={url} class="highlight-link card-title">{title}</a>
+  {date && <time datetime={date.toISOString()}>{dateLabel ?? formatDate(date)}</time>}
   {description && <p class="muted-text">{description}</p>}
   {
     tags && (
@@ -33,18 +32,11 @@ import { formatDate } from "../../utils/date";
     padding: 1.25rem 0;
   }
 
-  .title-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2rem;
-    align-items: baseline;
-  }
-
-  .title-row a {
+  .card-title {
+    display: inline-block;
     font-size: var(--text-sm);
     text-decoration: none;
     color: var(--text-color);
-    justify-self: start;
     background-image: linear-gradient(#60a5fa, #60a5fa);
     background-repeat: no-repeat;
     background-size: 0% 100%;
@@ -52,7 +44,7 @@ import { formatDate } from "../../utils/date";
     transition: background-size 0.3s ease, color 0.3s ease;
   }
 
-  .title-row a:hover {
+  .card-title:hover {
     color: #0f172a;
     background-size: 100% 100%;
   }
@@ -62,10 +54,12 @@ import { formatDate } from "../../utils/date";
   }
 
   time {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
     font-size: var(--text-xs);
-    opacity: 0.5;
-    white-space: nowrap;
-    text-align: right;
+    letter-spacing: 0;
+    opacity: 0.35;
   }
 
   .tags {
