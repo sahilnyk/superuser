@@ -39,7 +39,7 @@ const {
   noindex = false,
 } = Astro.props;
 
-const siteUrl = Astro.site ?? new URL("https://sahilnyk.xyz");
+const siteUrl = Astro.site ?? new URL("https://www.sahilnyk.xyz");
 const fullTitle = title.includes("Sahil Nayak") ? title : `${title} · Sahil Nayak`;
 const ogImage = new URL(image, siteUrl).toString();
 

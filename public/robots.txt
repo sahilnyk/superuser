@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sahilnyk.xyz/sitemap-index.xml
+Sitemap: https://www.sahilnyk.xyz/sitemap-index.xml

@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://sahilnyk.xyz',
+  site: 'https://www.sahilnyk.xyz',
   output: "static",
   prefetch: true,
   compressHTML: true,
