@@ -41,6 +41,11 @@ const projects = defineCollection({
         install: z.string().optional(),
         featured: z.boolean().optional().default(false),
         techs: z.array(z.string()).optional(),
+        screenshots: z.array(z.object({
+            src: z.string(),
+            w: z.number(),
+            h: z.number(),
+        })).optional(),
     })
 });
 

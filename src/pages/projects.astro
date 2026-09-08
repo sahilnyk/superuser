@@ -33,11 +33,31 @@ const linkLabel = (url: string) => {
             <div class="proj-head">
               <h2 class="proj-title">{project.data.title}</h2>
               <a href={project.data.url} target="_blank" rel="noopener noreferrer" class="proj-link">
-                {linkLabel(project.data.url)} <span aria-hidden="true">&#8599;</span>
+                {linkLabel(project.data.url)}
+                <svg class="proj-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17 17 7" />
+                  <path d="M7 7h10v10" />
+                </svg>
               </a>
             </div>
 
             <p class="muted-text">{project.data.description}</p>
+
+            {project.data.screenshots && (
+              <div class="shots" aria-label={`${project.data.title} screenshots`}>
+                {project.data.screenshots.map((s, i) => (
+                  <img
+                    class="shot"
+                    src={s.src}
+                    width={s.w}
+                    height={s.h}
+                    alt={`${project.data.title} screenshot ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ))}
+              </div>
+            )}
 
             {project.data.install && (
               <div class="install">
@@ -115,8 +135,22 @@ const linkLabel = (url: string) => {
     transition: opacity var(--transition-base);
   }
 
+  .proj-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+
+  .proj-arrow {
+    transition: transform var(--transition-base);
+  }
+
   .proj-link:hover {
     opacity: 1;
+  }
+
+  .proj-link:hover .proj-arrow {
+    transform: translate(1px, -1px);
   }
 
   .muted-text {
@@ -192,9 +226,60 @@ const linkLabel = (url: string) => {
     opacity: 0.4;
   }
 
+  /* tilted, all-visible screenshot cluster (no scroll) */
+  .shots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    margin: 0.75rem 0 1.5rem;
+    padding: 0.6rem 0;
+  }
+
+  .shot {
+    width: 132px;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: #0a0a0a;
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    will-change: transform;
+  }
+
+  .shot:nth-child(1) { transform: rotate(-6deg) translateY(6px); }
+  .shot:nth-child(2) { transform: rotate(3deg) translateY(-4px); }
+  .shot:nth-child(3) { transform: rotate(-3deg) translateY(5px); }
+  .shot:nth-child(4) { transform: rotate(6deg) translateY(-3px); }
+
+  .shot:hover {
+    transform: rotate(0) translateY(0) scale(1.07);
+    box-shadow: 0 16px 34px -10px rgba(0, 0, 0, 0.7);
+    z-index: 2;
+  }
+
   @media (max-width: 640px) {
     article {
       padding: 1.25rem 0;
+    }
+
+    .shots {
+      gap: 0.5rem 0.7rem;
+    }
+
+    .shot {
+      width: 40%;
+      border-radius: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shot,
+    .shot:nth-child(1),
+    .shot:nth-child(2),
+    .shot:nth-child(3),
+    .shot:nth-child(4) {
+      transform: none;
     }
   }
 </style>
