@@ -21,6 +21,22 @@ export const getStaticPaths = (async () => {
 const { post, newerPost, olderPost } = Astro.props;
 const { Content } = await render(post);
 
+const canonical = new URL(`/blog/${post.id}/`, Astro.site).toString();
+const ogImage = "/og.png";
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.publishedAt.toISOString(),
+  dateModified: post.data.publishedAt.toISOString(),
+  author: { "@type": "Person", name: "Sahil Nayak", url: "https://sahilnyk.xyz" },
+  publisher: { "@type": "Person", name: "Sahil Nayak", url: "https://sahilnyk.xyz" },
+  url: canonical,
+  mainEntityOfPage: canonical,
+  image: new URL(ogImage, Astro.site).toString(),
+};
+
 const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -35,7 +51,14 @@ const readingTime = (content: string) => {
 };
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={ogImage}
+  ogType="article"
+  publishedTime={post.data.publishedAt.toISOString()}
+  jsonLd={blogPostingSchema}
+>
   <div id="progress-bar"></div>
 
   <div class="blog-wrap">

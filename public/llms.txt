@@ -1,0 +1,24 @@
+# Sahil Nayak
+
+> Sahil Nayak is a software engineer who works on backend systems, developer tooling and cloud infrastructure, mostly in Python with FastAPI and AWS. He is available for freelance and consulting work.
+
+## Pages
+
+- [Home](https://sahilnyk.xyz/): Who Sahil Nayak is and what he works on.
+- [Blog](https://sahilnyk.xyz/blog): First-person write-ups on backend development, infrastructure, LLM inference and AWS.
+- [Projects](https://sahilnyk.xyz/projects): Open-source Python tools, including fullapi and deburger.
+- [Hire Me](https://sahilnyk.xyz/hire-me): Freelance and consulting availability, services and rates.
+
+## Blog posts
+
+- [Why I Built This Website](https://sahilnyk.xyz/blog/why-i-built-this-site/)
+- [The LAMP Stack Still Just Works](https://sahilnyk.xyz/blog/lamp-stack-still-works/)
+- [Ditching nohup for systemd](https://sahilnyk.xyz/blog/systemd-for-my-side-project/)
+- [I Ran a Local LLM Badly, and Learned Something Anyway](https://sahilnyk.xyz/blog/running-a-local-llm-badly/)
+- [Trying to Understand LLM Inference (as a Beginner)](https://sahilnyk.xyz/blog/trying-to-understand-llm-inference/)
+- [What Deploying on AWS Actually Taught Me](https://sahilnyk.xyz/blog/deploying-on-aws/)
+
+## Contact
+
+- GitHub: https://github.com/sahilnyk
+- X: https://x.com/byteekai

@@ -22,9 +22,53 @@ interface Props {
   description: string;
   image?: string;
   canonicalURL?: string;
+  ogType?: "website" | "article";
+  publishedTime?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
 }
 
-const { title, description, image = "/default-og-image.jpg", canonicalURL = Astro.url } = Astro.props;
+const {
+  title,
+  description,
+  image = "/og.png",
+  canonicalURL = Astro.url,
+  ogType = "website",
+  publishedTime,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = Astro.site ?? new URL("https://sahilnyk.xyz");
+const fullTitle = title.includes("Sahil Nayak") ? title : `${title} · Sahil Nayak`;
+const ogImage = new URL(image, siteUrl).toString();
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Sahil Nayak",
+  alternateName: "sahilnyk",
+  url: siteUrl.toString(),
+  image: new URL("/sahilnyk.png", siteUrl).toString(),
+  jobTitle: "Software Engineer",
+  sameAs: [
+    "https://github.com/sahilnyk",
+    "https://x.com/byteekai",
+    "https://www.hackerrank.com/profile/contactsahilpna1",
+    "https://www.chess.com/member/sah669",
+  ],
+};
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Sahil Nayak",
+  url: siteUrl.toString(),
+};
+const schemas: Record<string, unknown>[] = [
+  personSchema,
+  websiteSchema,
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+];
 ---
 
 <!doctype html>
@@ -34,15 +78,16 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta Tags -->
-    <title>{title}</title>
-    <meta name="title" content={title} />
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content="Sahil Nayak, sahilnyk, Full Stack Engineer, Software Developer, Python Developer, FastAPI, Terraform, AWS, Machine Learning, DevOps, Portfolio" />
     <meta name="author" content="Sahil Nayak" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="Sahil Nayak" href={new URL("/rss.xml", siteUrl)} />
 
     <!-- Preload critical fonts -->
     <link rel="preload" href={interLightWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
@@ -56,13 +101,15 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
 
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={Astro.url} />
-    <meta property="og:site_name" content="Sahil Nayak - Full Stack Engineer" />
+    <meta property="og:site_name" content="Sahil Nayak" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(image, Astro.site).toString()} />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="en_US" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {ogType === "article" && <meta property="article:author" content="Sahil Nayak" />}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
@@ -71,15 +118,11 @@ const { title, description, image = "/default-og-image.jpg", canonicalURL = Astr
     <meta property="twitter:creator" content="@byteekai" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(image, Astro.site).toString()} />
-
-    <!-- Additional SEO -->
-    <meta name="language" content="English" />
-    <meta name="geo.region" content="IN" />
-    <meta name="geo.placename" content="India" />
+    <meta property="twitter:image" content={ogImage} />
 
     <link rel="icon" type="image/png" href="/sahilnyk.png" />
     <meta name="generator" content={Astro.generator} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(schemas)} />
     <ClientRouter />
     <script is:inline>
       // Always use dark theme

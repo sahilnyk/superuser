@@ -24,7 +24,10 @@ const years = [...byYear.keys()].sort((a, b) => b - a);
 const shortDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 ---
 
-<BaseLayout title="Blog" description="Read my latest blog posts">
+<BaseLayout
+  title="Blog"
+  description="Notes by Sahil Nayak on backend development, infrastructure and the things picked up while building side projects."
+>
   <Container>
     <BaseHero title="Blog" description="Read my latest blog posts" />
     {
