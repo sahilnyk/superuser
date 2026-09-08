@@ -1,63 +1,77 @@
 ---
 import BaseLayout from "../components/layout/BaseLayout.astro";
 import Container from "../components/ui/Container.astro";
-
-const quotes = [
-  "This page is taking a longer route than expected.",
-  "Lost? So is this page.",
-  "Well, this is awkward.",
-  "404: Page not found. Also, my motivation.",
-  "This page ghosted you.",
-];
-
-const quote = quotes[Math.floor(Math.random() * quotes.length)];
+// Open Doodles ("Dog Jump") by Pablo Stanley. License: CC0 / public domain.
+// https://www.opendoodles.com
+import illo from "../assets/doodle-dog.svg?raw";
 ---
 
-<BaseLayout title="404 - Page Not Found" description="The page you're looking for doesn't exist.">
+<BaseLayout title="404" description="The page you're looking for doesn't exist." noindex>
   <Container>
-    <section class="not-found">
-      <span class="code">404</span>
-      <p class="quote">{quote}</p>
-      <a href="/" class="home-link">Go home</a>
+    <section class="nf">
+      <h1>This page ran off</h1>
+      <p class="line">The link is broken or the page has moved. There is nothing to fetch at this URL.</p>
+      <p class="hire">Lost anyway? <a href="/hire-me">you can hire me</a>.</p>
+
+      <div class="illo" role="img" aria-label="Hand-drawn illustration of a jumping dog" set:html={illo} />
     </section>
   </Container>
 </BaseLayout>
 
 <style>
-  .not-found {
+  .nf {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 50vh;
     text-align: center;
-    gap: 1.5rem;
+    gap: 1.1rem;
+    padding: 4rem 1rem 3rem;
+    min-height: 74vh;
   }
 
-  .code {
-    font-size: 5rem;
-    font-weight: 200;
-    opacity: 0.3;
-    line-height: 1;
-    font-family: var(--font-mono);
+  h1 {
+    font-family: "Archivo Black", var(--font-sans, sans-serif);
+    font-size: clamp(1.8rem, 6vw, 2.7rem);
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+    margin: 0;
   }
 
-  .quote {
+  .line {
     font-size: var(--text-sm);
     opacity: 0.6;
-    max-width: 300px;
-    line-height: 1.6;
+    line-height: 1.65;
+    max-width: 430px;
   }
 
-  .home-link {
-    font-size: var(--text-xs);
-    color: var(--link-color);
-    text-decoration: none;
+  .hire {
+    margin-top: 1rem;
+    font-size: var(--text-sm);
     opacity: 0.7;
-    transition: opacity var(--transition-base);
   }
 
-  .home-link:hover {
-    opacity: 1;
+  .hire a {
+    color: #60a5fa;
+    text-decoration: none;
+    background-image: linear-gradient(#60a5fa, #60a5fa);
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: left bottom;
+    transition: background-size 0.3s ease;
+  }
+
+  .hire a:hover {
+    background-size: 100% 1px;
+  }
+
+  .illo {
+    width: min(460px, 86vw);
+    margin-top: 2.5rem;
+  }
+
+  .illo :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 </style>
