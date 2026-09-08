@@ -1,16 +1,12 @@
 ---
 title: "Why I Built This Website"
-description: "No portfolio template, no fixed niche. Just a place that's mine, to write whatever I want."
+description: "There is no portfolio template here and no fixed niche, it is just a place that is mine where I can write about whatever I want."
 publishedAt: 2025-07-23
 draft: false
 ---
 
-Built my website in 2024, prev sahilnyk.tech, changed the domain to sahilnyk.xyz. It sat there mostly empty for months. I'd open it, stare at the blank sections, and close the tab.
+I built this website in 2024 on a domain called sahilnyk.tech and later I moved it to sahilnyk.xyz, but for months after that it stayed mostly empty because every time I opened it I would just look at the blank sections and close the tab again. The code was never the problem for me. The problem was that I kept treating the website like a resume, something I had to build to impress recruiters where every section is formatted the right way and every line says the right thing, and that pressure took away any reason I had to actually write something here.
 
-The problem wasn't the code. It was that I kept treating it like a resume, something to impress recruiters, formatted the "right" way, saying the "right" things. That pressure killed any reason to actually write here.
+At some point I stopped caring about using the website to impress anyone, so now it is just mine and there is no rule that every post has to be technical or polished. If I want to write about a bug that wrecked my whole week I will write about it, and the same goes for chess or some random thing I understood at 2am, because on my own website all of it is allowed.
 
-At some point I stopped caring about impressing anyone with it. It's mine now, no rule about every post being technical or polished. If I want to write about a bug that wrecked my week, I will. Chess, something dumb I learned at 2am, whatever, it's all fair game.
-
-That's the whole point now: freedom. A place where I can post anything without asking whether it fits some theme. Half journal, half technical notebook, half whatever I feel like that week (yeah, that's three halves, I'm not doing math here).
-
-This post is basically the first real entry. Everything after this is just me figuring things out in public.
+The point of the website now is freedom, a place where I can put up anything I want without first asking myself whether it fits some theme. It is half journal and half technical notebook and half whatever I feel like writing that week (that is three halves, but I am not doing the math here). This post is basically the first real entry, and everything I write after this is just me figuring things out in public.

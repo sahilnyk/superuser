@@ -1,6 +1,6 @@
 ---
 title: "deburger"
-description: "deburger scans your Python code for expensive cloud patterns before they hit production. It flags things like S3 calls in loops or unbounded queries, then estimates the actual monthly dollar cost of each one."
+description: "deburger scans your Python code for expensive cloud patterns before they reach production, so it flags things like S3 calls inside loops or unbounded queries and then estimates the real monthly dollar cost of each one."
 url: "https://pypi.org/project/deburger/"
 install: "pip install deburger"
 featured: true

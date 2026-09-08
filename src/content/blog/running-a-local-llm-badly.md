@@ -1,16 +1,14 @@
 ---
 title: "I Ran a Local LLM Badly, and Learned Something Anyway"
-description: "Tried running a quantized model on my own laptop out of curiosity. It was slow, my fan screamed, and I still learned more than any article had taught me."
+description: "I tried running a quantized model on my own laptop out of curiosity and it was slow and my fan screamed, but I still learned more from it than any article had taught me."
 publishedAt: 2026-07-02
 draft: false
 ---
 
-After my last post about inference, I wanted to actually see it happen instead of just reading about it. So I downloaded a small quantized model and ran it locally with Ollama, just to poke at it.
+After my last post about inference I wanted to actually watch it happen instead of only reading about it, so I downloaded a small quantized model and ran it on my own laptop using Ollama just to poke at it. The first thing that surprised me was that "quantized" is not a scary word at all, because it just means the numbers inside the model are stored with less precision so the model takes less memory and runs faster while losing a bit of quality, and I had seen the word a dozen times before without realising it was that simple. A 7B model that would need a lot more RAM at full precision fit on my laptop without a problem once it was quantized down.
 
-First surprise: "quantized" isn't some scary term, it just means the model's numbers are stored with less precision so it takes up less memory and runs faster, at some cost to quality. I'd seen the word a dozen times without knowing it was that simple. A 7B model that would need way more RAM at full precision fit comfortably on my laptop once quantized down.
+The second thing that surprised me was that my laptop fan told me exactly when the generation started and stopped, so I did not need a dashboard for it and the noise was enough. Watching `ollama run` push out the tokens one at a time, which was slower than I expected, made the whole idea of next-token prediction feel real to me instead of theoretical, because every single token had a cost that I could see.
 
-Second surprise: my laptop's fan told me exactly when generation started and stopped. No dashboard needed, just noise. Watching `ollama run` spit out tokens one at a time, slower than I expected, made the whole "next-token prediction" idea feel real instead of theoretical. Every token had a visible, physical cost.
+I also understood for the first time why people care about tokens per second as a number, because when you only read about it then it is just a metric, but when you watch your own machine doing around 8 tokens a second while a hosted API does 80 the difference is not subtle and you feel the gap while you sit and wait for one sentence to finish.
 
-I also finally understood why people care about tokens per second as a number. Reading about it, it's just a metric. Watching your own machine generate text at, say, 8 tokens a second versus a hosted API doing 80, the difference is not subtle. You feel the gap while staring at the screen waiting for a sentence to finish.
-
-I'm still nowhere near understanding the actual model internals. But running something small and slow on my own hardware taught me more about what "inference" costs than any explainer article did. Sometimes you just have to let your fan scream at you.
+I am still nowhere near understanding the actual internals of the model. But running something this small and this slow on my own hardware taught me more about what inference actually costs than any explainer article had taught me before.
