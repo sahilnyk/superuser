@@ -5,62 +5,98 @@ import Container from "../components/ui/Container.astro";
 import PricingCard from "../components/ui/PricingCard.astro";
 
 const hourlyFeatures = [
-  "Ongoing development support",
-  "Code reviews & consulting",
-  "Bug fixes & maintenance",
-  "Minimum 10 hours/week"
+  "Best when the scope is open-ended or still changing",
+  "Ongoing work: new features, maintenance, untangling old code",
+  "A set number of hours each week, billed on the time I log",
+  "Pause or stop whenever you need to"
 ];
 
 const projectFeatures = [
-  "Full project development",
-  "Architecture & design",
-  "Testing & deployment",
-  "Post-launch support included"
+  "One scope and one price, agreed before I start",
+  "Built in stages so you see progress along the way",
+  "You get the code, docs, tests and a clean handover",
+  "Part paid upfront, the rest as milestones land"
 ];
 ---
 
 <BaseLayout
   title="Hire Me"
-  description="Hire Sahil Nayak for freelance and consulting work in Python, FastAPI and AWS: backend development, automation and cloud cost optimisation."
+  description="Hire Sahil Nayak for freelance, contract or full-time work in Python, FastAPI and AWS: backend APIs, automation, cloud setup and cost cleanup."
 >
   <Container>
     <BaseHero
       title="Hire Me"
-      description="Let's discuss your project. Schedule a consultation call to explore how we can work together."
+      description="Tell me what you're building, or what is stuck, and we can work out if I'm a fit."
     />
 
     <section class="hire-content">
       <div class="intro-text">
         <p>
-          I'm available for <span class="highlight">freelance projects</span>, <span class="highlight">consulting</span>, and <span class="highlight">full-time opportunities</span>.
-          Whether you need help with a specific technical challenge or looking for a long-term collaboration,
-          I'd love to hear from you.
+          I am open to almost any kind of work here. An <span class="hl">ongoing project</span> you
+          want another pair of hands on, a <span class="hl">freelance build someone left half done</span>,
+          a <span class="hl">contract role</span>, or a <span class="hl">full-time job</span> if you
+          are a founder building a team. Go through my work and my GitHub at
+          <a href="https://github.com/sahilnyk" target="_blank" rel="noopener noreferrer" class="mention-link">@sahilnyk</a>
+          to see what I build.
         </p>
       </div>
 
       <div class="pricing-section">
-        <h2>Pricing</h2>
+        <div class="pricing-head">
+          <h2>Pricing</h2>
+          <div class="cur-toggle" role="group" aria-label="Currency">
+            <button type="button" data-cur="usd" class="active">USD</button>
+            <button type="button" data-cur="inr">INR</button>
+          </div>
+        </div>
         <div class="pricing-cards">
           <PricingCard
-            title="Hourly Rate"
-            price="$8"
+            title="Hourly"
+            usd={8}
+            inr={700}
             period="hour"
-            description="Flexible engagement"
             features={hourlyFeatures}
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
           />
           <PricingCard
-            title="Project-Based"
+            title="Project"
             price="Custom"
-            description="Fixed scope projects"
             features={projectFeatures}
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
+            recommended
           />
         </div>
       </div>
     </section>
   </Container>
 </BaseLayout>
+
+<script>
+  import "number-flow";
+
+  function initPricing() {
+    const toggle = document.querySelector(".cur-toggle");
+    if (!toggle || toggle.hasAttribute("data-wired")) return;
+    toggle.setAttribute("data-wired", "");
+
+    const btns = Array.from(toggle.querySelectorAll("button"));
+    const prices = Array.from(document.querySelectorAll("number-flow.nf-price")) as any[];
+
+    const setCur = (cur: string) => {
+      btns.forEach((b) => b.classList.toggle("active", b.dataset.cur === cur));
+      prices.forEach((el) => {
+        el.numberPrefix = cur === "usd" ? "$" : "₹";
+        el.update(Number(cur === "usd" ? el.dataset.usd : el.dataset.inr));
+      });
+    };
+
+    btns.forEach((b) => b.addEventListener("click", () => setCur(b.dataset.cur || "usd")));
+    setCur("usd");
+  }
+
+  initPricing();
+  document.addEventListener("astro:page-load", initPricing);
+</script>
 
 <style>
   .hire-content {
@@ -74,13 +110,66 @@ const projectFeatures = [
 
   .intro-text p {
     margin-bottom: 1rem;
-    line-height: 1.6;
+    line-height: 1.7;
     opacity: 0.9;
   }
 
-  .highlight {
-    color: rgba(96, 165, 250, 0.9);
+  .hl {
+    color: #60a5fa;
     font-weight: 500;
+  }
+
+  .mention-link {
+    color: #60a5fa;
+    text-decoration: none;
+    background-image: linear-gradient(#60a5fa, #60a5fa);
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: left bottom;
+    transition: background-size 0.3s ease;
+  }
+
+  .mention-link:hover {
+    background-size: 100% 1px;
+  }
+
+  .pricing-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .pricing-head h2 {
+    margin: 0;
+  }
+
+  .cur-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: #17191f;
+  }
+
+  .cur-toggle button {
+    padding: 0.35rem 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #a1a1aa;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .cur-toggle button.active {
+    background: #fafafa;
+    color: #18181b;
   }
 
   .pricing-section {
@@ -95,16 +184,18 @@ const projectFeatures = [
 
   .pricing-cards {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
     margin-bottom: 4rem;
-    max-width: 900px;
   }
 
-  @media (max-width: 1024px) {
+  .pricing-cards :global(.card) {
+    max-width: none;
+  }
+
+  @media (max-width: 560px) {
     .pricing-cards {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
     }
   }
 </style>

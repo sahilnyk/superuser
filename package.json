@@ -18,7 +18,8 @@
     "@fontsource/roboto-mono": "^5.1.1",
     "@fontsource/source-sans-pro": "^5.1.0",
     "astro": "^5.1.2",
-    "astro-robots-txt": "^1.0.0"
+    "astro-robots-txt": "^1.0.0",
+    "number-flow": "^0.6.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241230.0",

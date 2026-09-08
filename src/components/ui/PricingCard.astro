@@ -1,312 +1,205 @@
 ---
 interface Props {
   title: string;
-  price: string;
+  price?: string;
+  usd?: number;
+  inr?: number;
   period?: string;
-  description: string;
+  description?: string;
   features: string[];
   recommended?: boolean;
   calLink?: string;
 }
 
-const { title, price, period, description, features, recommended = false, calLink } = Astro.props;
+const { title, price, usd, inr, period, features, recommended = false, calLink } = Astro.props;
+const flow = typeof usd === "number" && typeof inr === "number";
 ---
 
-<article class:list={["pricing-card", { recommended }]}>
-  <div class="glass-header">
-    <div class="glass-overlay"></div>
-    <div class="header-content">
-      <div class="plan-info">
-        <span class="plan-name">{title}</span>
-      </div>
-      {recommended && <span class="badge">Recommended</span>}
+<!-- pricing card: shadcn Card + Badge + Separator + Button, animated price via number-flow -->
+<article class:list={["card", { ring: recommended }]}>
+  <div class="content">
+    <div class="row">
+      <span class="name">{title}</span>
+      {recommended && <span class="badge">Most Popular</span>}
     </div>
-    <div class="price-wrapper">
-      <div class="price">
-        <span class="amount">{price}</span>
-        {period && <span class="period">/{period}</span>}
-      </div>
-      <p class="description">{description}</p>
+
+    <div class="price">
+      {
+        flow ? (
+          <number-flow class="nf-price" data-usd={usd} data-inr={inr}>{`$${usd}`}</number-flow>
+        ) : (
+          <span class="amount">{price}</span>
+        )
+      }
+      {period && <span class="period">/{period}</span>}
     </div>
-  </div>
-  <div class="card-body">
+
+    <div class="separator"></div>
+
     <ul class="features">
-      {features.map((feature) => (
-        <li>
-          <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-            <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>{feature}</span>
-        </li>
-      ))}
+      {
+        features.map((f) => (
+          <li>
+            <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            {f}
+          </li>
+        ))
+      }
     </ul>
-    {calLink && (
-      <a href={calLink} target="_blank" rel="noopener noreferrer" class="schedule-btn">
-        <span class="btn-beam"></span>
-        <span class="btn-text">Schedule Call</span>
-      </a>
-    )}
+
+    {
+      calLink && (
+        <a class="button pricing-cta" href={calLink} target="_blank" rel="noopener noreferrer">
+          Book a call
+        </a>
+      )
+    }
   </div>
 </article>
 
 <style>
-  .pricing-card {
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 6px;
-    background: transparent;
-    position: relative;
+  .card {
+    --card-bg: #0f1115;
+    --fg: #fafafa;
+    --primary: #fafafa;
+    --primary-fg: #18181b;
+    --muted-fg: #a1a1aa;
+    --border: #27272a;
+
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--fg);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card.ring {
+    border-color: transparent;
+    background: linear-gradient(to top, #050505, #16181d);
+    box-shadow:
+      0 0 0 2px var(--primary),
+      0 22px 48px -18px rgba(0, 0, 0, 0.8);
+  }
+
+  @media (min-width: 561px) {
+    .card.ring {
+      transform: scale(1.04);
+    }
+  }
+
+  .content {
     display: flex;
     flex-direction: column;
-    transition: all var(--transition-base);
-  }
-
-  .pricing-card:hover {
-    border-color: var(--text-muted);
-  }
-
-  .pricing-card.recommended {
-    border-color: var(--text-muted);
-  }
-
-  .glass-header {
-    background: var(--bg-color-muted);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    gap: 1rem;
     padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
   }
 
-  .glass-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 40%,
-      rgba(0, 0, 0, 0) 100%
-    );
-    pointer-events: none;
-  }
-
-  .header-content {
-    position: relative;
+  .row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2rem;
-  }
-
-  .plan-info {
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
   }
 
-  .plan-name {
+  .name {
     font-size: 0.875rem;
-    font-weight: 500;
-    opacity: 0.7;
+    line-height: 1.25rem;
+    font-weight: 600;
   }
 
   .badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    border: 1px solid var(--border-color);
-    background: transparent;
-    opacity: 0.7;
-    z-index: 10;
-  }
-
-  .price-wrapper {
-    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    line-height: 1rem;
+    font-weight: 600;
+    background: var(--primary);
+    color: var(--primary-fg);
   }
 
   .price {
     display: flex;
     align-items: baseline;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
+    gap: 0.15rem;
+    min-height: 2.4rem;
   }
 
-  .price .amount {
-    font-family: "Archivo Black", sans-serif;
-    font-size: 2rem;
+  .amount,
+  .nf-price {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
     font-weight: 700;
+    letter-spacing: -0.01em;
+    --number-flow-char-height: 0.85em;
+  }
+
+  .period {
+    align-self: flex-end;
+    padding-bottom: 0.35rem;
+    font-size: 0.8rem;
     line-height: 1;
-    letter-spacing: -0.02em;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.9) 25%,
-      rgba(255, 255, 255, 0.7) 50%,
-      rgba(255, 255, 255, 0.9) 75%,
-      rgba(255, 255, 255, 0.7) 100%
-    );
-    background-size: 200% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 4s ease-in-out infinite;
+    color: var(--muted-fg);
   }
 
-  @keyframes shine {
-    0% {
-      background-position: 200% center;
-    }
-    100% {
-      background-position: -200% center;
-    }
-  }
-
-  .price .period {
-    font-size: 0.875rem;
-    opacity: 0.6;
-  }
-
-  .description {
-    font-size: 0.75rem;
-    opacity: 0.5;
-    line-height: 1.5;
-  }
-
-  .card-body {
-    padding: 0 1rem 1rem;
-    flex: 1;
+  .separator {
+    height: 1px;
+    width: 100%;
+    background: var(--border);
   }
 
   .features {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.55rem;
   }
 
   .features li {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.55rem;
     font-size: 0.875rem;
-    opacity: 0.8;
-    line-height: 1.5;
+    line-height: 1.35rem;
   }
 
-  .check-icon {
+  .check {
     flex-shrink: 0;
-    margin-top: 0.125rem;
-    color: var(--text-muted);
+    margin-top: 0.15rem;
+    color: #10b981;
   }
 
-  .schedule-btn {
-    position: relative;
-    display: block;
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 1rem 1.5rem;
-    margin-top: 1.5rem;
-    text-align: center;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
     font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-color);
-    background: linear-gradient(
-      135deg,
-      #1a1a1a 0%,
-      #2a2a2a 50%,
-      #1a1a1a 100%
-    );
-    background-size: 200% 200%;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
+    line-height: 1.25rem;
+    font-weight: 600;
     text-decoration: none;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 2px 8px rgba(0, 0, 0, 0.4);
+    background-color: var(--primary);
+    color: var(--primary-fg);
+    transition: opacity 0.15s ease;
   }
 
-  .schedule-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 0;
-    border-radius: 12px;
+  .button:hover {
+    opacity: 0.9;
   }
 
-  .schedule-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    z-index: 1;
-  }
-
-  .btn-text {
-    position: relative;
-    z-index: 2;
-  }
-
-  .btn-beam {
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.12) 50%,
-      transparent 100%
-    );
-    transition: left 0.7s ease;
-    z-index: 1;
-  }
-
-  .schedule-btn:hover .btn-beam {
-    left: 100%;
-  }
-
-  .schedule-btn:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: linear-gradient(
-      135deg,
-      #242424 0%,
-      #323232 50%,
-      #242424 100%
-    );
-    transform: translateY(-2px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 4px 16px rgba(0, 0, 0, 0.5),
-      0 1px 2px rgba(255, 255, 255, 0.1);
-  }
-
-  .schedule-btn:active {
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 2px 8px rgba(0, 0, 0, 0.4);
+  .card.ring .button {
+    background: linear-gradient(to top, #d4d4d8, #fafafa);
+    box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.6);
   }
 </style>
