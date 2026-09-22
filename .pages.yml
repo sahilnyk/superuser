@@ -1,0 +1,43 @@
+media:
+  input: public/images
+  output: /images
+  rename: safe
+
+content:
+  - name: blog
+    label: Blog posts
+    type: collection
+    path: src/content/blog
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, publishedAt, draft]
+      primary: title
+      sort: [publishedAt, title]
+      default:
+        sort: publishedAt
+        order: desc
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: description
+        type: text
+        required: true
+      - name: publishedAt
+        label: Publish date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: draft
+        type: boolean
+        default: true
+        description: Turn off to publish this post on the next site build.
+      - name: body
+        label: Post
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          switcher: true
