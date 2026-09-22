@@ -1,12 +1,20 @@
 ---
-title: "Why I Built This Website"
-description: "There is no portfolio template here and no fixed niche, it is just a place that is mine where I can write about whatever I want."
+title: How My Personal Website Grew With Me 😂
 publishedAt: 2025-07-23
 draft: false
 ---
+It was during my first semester in 2023 when I decided to build a website for myself. The idea was simple. I wanted a small space where I could post my work, write about what I was learning and keep everything I built in one place.
 
-I built this website in 2024 on a domain called sahilnyk.tech and later I moved it to sahilnyk.xyz, but for months after that it stayed mostly empty because every time I opened it I would just look at the blank sections and close the tab again. The code was never the problem for me. The problem was that I kept treating the website like a resume, something I had to build to impress recruiters where every section is formatted the right way and every line says the right thing, and that pressure took away any reason I had to actually write something here.
+At that time I had just started learning Django so I thought why not build the whole thing using Django + Vue.js + PostgreSQL. After a tough week of debugging and figuring out how everything should work I somehow built the first iteration of the UI.
 
-At some point I stopped caring about using the website to impress anyone, so now it is just mine and there is no rule that every post has to be technical or polished. If I want to write about a bug that wrecked my whole week I will write about it, and the same goes for chess or some random thing I understood at 2am, because on my own website all of it is allowed.
+I dont have any screenshots of it now but tbh it looked shit. It wasnt responsive and the design was all over the place. Still it was the first proper website I had built for myself so I kept working on it. With every iteration I changed something. Sometimes the layout, sometimes the colors and sometimes I ended up rebuilding an entire section because one small thing didnt feel right.
 
-The point of the website now is freedom, a place where I can put up anything I want without first asking myself whether it fits some theme. It is half journal and half technical notebook and half whatever I feel like writing that week (that is three halves, but I am not doing the math here). This post is basically the first real entry, and everything I write after this is just me figuring things out in public.
+Later I realised the stack itself didnt make much sense for what I was building. It was basically a simple CRUD website but I was using Django, Vue.js and PostgreSQL without even using the full potential of any of them. I was just making the project more complicated for myself. Dumb me.
+
+So I decided to rebuild it with Astro. It was lightweight, easy to modify and I could deploy it on Vercel without managing a backend or any extra stuff. It also made more sense for a personal website where most of the content is static.
+
+The Astro version went through a lot of changes too. I kept experimenting with the UI and removing things that didnt really add anything. Slowly the website started feeling more like me instead of just another portfolio template.
+
+Looking back the website grew along with me. The first version was mostly about learning how Django and Vue worked together. The newer version is more about keeping things simple and choosing tools based on what the project actually needs.
+
+It still isnt something I would call finished. I keep changing small things whenever I get a new idea or feel like a section could be better. But I guess thats the fun part of having your own corner on the internet. It never really has to be finished.
