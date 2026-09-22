@@ -52,8 +52,8 @@ const projectFeatures = [
         <div class="pricing-cards">
           <PricingCard
             title="Hourly"
-            usd={8}
-            inr={700}
+            usd={12}
+            inr={1000}
             period="hour"
             features={hourlyFeatures}
             calLink="https://cal.com/sahil-nayak-m4ulup/30min"
@@ -71,31 +71,26 @@ const projectFeatures = [
   </Container>
 </BaseLayout>
 
-<script>
-  import "number-flow";
-
-  function initPricing() {
-    const toggle = document.querySelector(".cur-toggle");
-    if (!toggle || toggle.hasAttribute("data-wired")) return;
-    toggle.setAttribute("data-wired", "");
-
-    const btns = Array.from(toggle.querySelectorAll("button"));
-    const prices = Array.from(document.querySelectorAll("number-flow.nf-price")) as any[];
-
-    const setCur = (cur: string) => {
-      btns.forEach((b) => b.classList.toggle("active", b.dataset.cur === cur));
-      prices.forEach((el) => {
-        el.numberPrefix = cur === "usd" ? "$" : "₹";
-        el.update(Number(cur === "usd" ? el.dataset.usd : el.dataset.inr));
+<script is:inline>
+  (() => {
+    const setCurrency = (currency) => {
+      document.querySelectorAll(".cur-toggle button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.cur === currency);
+      });
+      document.querySelectorAll(".nf-price").forEach((price) => {
+        const value = Number(currency === "usd" ? price.dataset.usd : price.dataset.inr);
+        price.textContent = `${currency === "usd" ? "$" : "₹"}${value.toLocaleString("en-IN")}`;
       });
     };
 
-    btns.forEach((b) => b.addEventListener("click", () => setCur(b.dataset.cur || "usd")));
-    setCur("usd");
-  }
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".cur-toggle button");
+      if (button) setCurrency(button.dataset.cur || "usd");
+    });
 
-  initPricing();
-  document.addEventListener("astro:page-load", initPricing);
+    setCurrency("usd");
+    document.addEventListener("astro:page-load", () => setCurrency("usd"));
+  })();
 </script>
 
 <style>

@@ -74,13 +74,10 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
 
     <section class="video-intro">
       <div class="video-container">
-        <iframe
-          src="https://www.youtube.com/embed/J---aiyznGQ"
-          title="Video Introduction"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen
-        ></iframe>
+        <button class="video-play" type="button" aria-label="Play video introduction" data-video="J---aiyznGQ">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z" /></svg>
+          <span>Play video introduction</span>
+        </button>
       </div>
       <p class="video-note"><em>will update this once I make my intro video</em></p>
     </section>
@@ -140,6 +137,21 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
   </Container>
 </BaseLayout>
 
+<script>
+  document.addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>(".video-play");
+    if (!button) return;
+    const container = button.parentElement;
+    if (!container) return;
+    const frame = document.createElement("iframe");
+    frame.src = `https://www.youtube-nocookie.com/embed/${button.dataset.video}?autoplay=1`;
+    frame.title = "Video Introduction";
+    frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    frame.allowFullscreen = true;
+    container.replaceChildren(frame);
+  });
+</script>
+
 <style>
   main {
     width: 100%;
@@ -170,7 +182,6 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     width: 100%;
     height: auto;
     border-radius: 10px;
-    filter: grayscale(1) contrast(1.05);
     opacity: 0.92;
   }
 
@@ -366,13 +377,33 @@ const featuredProjects = projects.filter((project: CollectionEntry<"projects">) 
     opacity: 1;
   }
 
-  .video-container iframe {
+  .video-container :global(iframe) {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     border-radius: 12px;
+  }
+
+  .video-play {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font: inherit;
+  }
+
+  .video-play svg {
+    color: #60a5fa;
   }
 
   .video-note {

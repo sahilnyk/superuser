@@ -4,7 +4,7 @@ import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../components/layout/BaseLayout.astro";
 
 export const getStaticPaths = (async () => {
-  const notes = await getCollection("notes");
+  const notes = await getCollection("notes", ({ data }) => !import.meta.env.PROD || !data.draft);
   return notes.map((note) => ({
     params: { slug: note.id },
     props: { note },

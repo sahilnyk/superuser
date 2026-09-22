@@ -6,13 +6,20 @@ interface Props {
   date?: Date;
   dateLabel?: string;
   tags?: string[];
+  showAuthor?: boolean;
 }
 
-const { title, description, url, date, dateLabel, tags } = Astro.props;
+const { title, description, url, date, dateLabel, tags, showAuthor = false } = Astro.props;
 import { formatDate } from "../../utils/date";
 ---
 
 <article>
+  {showAuthor && (
+    <div class="author">
+      <img src="/sahilnyk.png" alt="" width="24" height="24" />
+      <span>Sahil Nayak</span>
+    </div>
+  )}
   <a href={url} class="highlight-link card-title">{title}</a>
   {date && <time datetime={date.toISOString()}>{dateLabel ?? formatDate(date)}</time>}
   {description && <p class="muted-text">{description}</p>}
@@ -30,6 +37,20 @@ import { formatDate } from "../../utils/date";
 <style>
   article {
     padding: 1.25rem 0;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+  }
+
+  .author img {
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .card-title {
