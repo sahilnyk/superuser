@@ -14,9 +14,8 @@
   --glow-color: rgba(139, 92, 246, 0.3);
   --top-glow-color: rgba(255, 255, 255, 0.08);
 
-  --font-sans: "Source Sans Pro", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-    Cantarell, sans-serif;
-  --font-mono: "Roboto Mono", Consolas, "Courier New", monospace;
+  --font-sans: "Cantarell", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Roboto Mono", Consolas, "Courier New", monospace;
 
   --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }

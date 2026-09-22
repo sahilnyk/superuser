@@ -24,8 +24,8 @@ const technologies = [
   <div class="tech-carousel">
     <div class="tech-track">
       {technologies.concat(technologies).map((tech, index) => (
-        <div class="tech-item" key={index}>
-          <img src={tech.icon} alt={tech.name} loading="lazy" />
+        <div class="tech-item" aria-hidden={index >= technologies.length ? "true" : undefined}>
+          <img src={tech.icon} alt="" width="42" height="42" loading="lazy" decoding="async" />
           <span>{tech.name}</span>
         </div>
       ))}
@@ -47,39 +47,25 @@ const technologies = [
   }
 
   .tech-carousel {
-    position: relative;
     width: 100%;
     overflow: hidden;
-    mask-image: linear-gradient(
-      to right,
-      transparent,
-      black 10%,
-      black 90%,
-      transparent
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent,
-      black 10%,
-      black 90%,
-      transparent
-    );
   }
 
   .tech-track {
+    --loop-offset: 1.5rem;
     display: flex;
     gap: 3rem;
-    animation: scroll 60s linear infinite;
     width: max-content;
+    animation: scroll 60s linear infinite;
   }
 
   .tech-track:hover {
     animation-play-state: paused;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: reduce) {
     .tech-track {
-      animation: scroll 60s linear infinite;
+      animation: none;
     }
   }
 
@@ -111,11 +97,8 @@ const technologies = [
   }
 
   @keyframes scroll {
-    from {
-      transform: translateX(0);
-    }
     to {
-      transform: translateX(calc(-100% / 2));
+      transform: translateX(calc(-50% - var(--loop-offset)));
     }
   }
 
@@ -131,8 +114,9 @@ const technologies = [
     }
 
     .tech-track {
+      --loop-offset: 1rem;
       gap: 2rem;
-      animation: scroll 40s linear infinite;
+      animation-duration: 40s;
     }
 
     .tech-item {

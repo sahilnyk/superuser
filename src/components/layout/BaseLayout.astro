@@ -4,15 +4,8 @@ import "../../styles/animations.css";
 import "../../styles/global.css";
 import "../../styles/transitions.css";
 
-import "@fontsource/inter/300.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/roboto-mono/400.css";
+import "@fontsource/roboto-mono/latin-400.css";
 
-import interLightWoff2 from "@fontsource/inter/files/inter-latin-300-normal.woff2?url";
-import interRegularWoff2 from "@fontsource/inter/files/inter-latin-400-normal.woff2?url";
-import interMediumWoff2 from "@fontsource/inter/files/inter-latin-500-normal.woff2?url";
-import robotoMonoRegularWoff2 from "@fontsource/roboto-mono/files/roboto-mono-latin-400-normal.woff2?url";
 import { ClientRouter } from "astro:transitions";
 import Navigation from "../shared/Navigation.astro";
 import Footer from "../shared/Footer.astro";
@@ -89,14 +82,9 @@ const schemas: Record<string, unknown>[] = [
     <!-- RSS -->
     <link rel="alternate" type="application/rss+xml" title="Sahil Nayak" href={new URL("/rss.xml", siteUrl)} />
 
-    <!-- Preload critical fonts -->
-    <link rel="preload" href={interLightWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" href={interRegularWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" href={interMediumWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" href={robotoMonoRegularWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Gochi+Hand&display=swap" rel="stylesheet">
 
 
