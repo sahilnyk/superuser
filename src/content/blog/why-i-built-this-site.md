@@ -1,5 +1,5 @@
 ---
-title: How My Personal Website Grew With Me 😂
+title: How My Personal Website Grew With Me
 publishedAt: 2025-07-23
 draft: false
 ---
