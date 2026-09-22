@@ -21,9 +21,6 @@ content:
       - name: title
         type: string
         required: true
-      - name: description
-        type: text
-        required: true
       - name: publishedAt
         label: Publish date
         type: date
